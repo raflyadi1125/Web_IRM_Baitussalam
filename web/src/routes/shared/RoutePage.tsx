@@ -1,9 +1,10 @@
-import AnggotaPage from '../../pages/AnggotaPages'
+import AnggotaPage from '../../pages/AnggotaPage'
 import Dashboard from '../../pages/Dashboard'
 import KegiatanPage from '../../pages/KegiatanPage'
-import ModulePlaceholder from '../../pages/ModulePlaceholder'
+import KeuanganPage from '../../pages/KeuanganPage'
+import LaporanPage from '../../pages/LaporanPage'
+import PengumumanPage from '../../pages/PengumunanPage'
 import PengurusPage from '../../pages/PengurusPage'
-import type { NavKey } from '../../types'
 import { ROLE_META } from '../config'
 import type { AppRole, RoleRouteProps } from '../types'
 
@@ -21,10 +22,14 @@ export default function RoutePage({ role, activePage, searchQuery, onNavigate }:
       return <PengurusPage searchQuery={searchQuery} />
     case 'kegiatan':
       return <KegiatanPage searchQuery={searchQuery} />
-    default: {
-      const placeholderPage: Exclude<NavKey, 'dashboard' | 'anggota' | 'pengurus' | 'kegiatan'> = activePage as Exclude<NavKey, 'dashboard' | 'anggota' | 'pengurus' | 'kegiatan'>
-      return <ModulePlaceholder page={placeholderPage} onBack={() => onNavigate('dashboard')} />
-    }
+    case 'pengumuman':
+      return <PengumumanPage role={role} searchQuery={searchQuery} />
+    case 'keuangan':
+      return <KeuanganPage role={role} searchQuery={searchQuery} />
+    case 'laporan':
+      return <LaporanPage role={role} />
+    default:
+      return <RoleRouteFallback role={role} onNavigate={() => onNavigate('dashboard')} />
   }
 }
 
