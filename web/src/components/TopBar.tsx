@@ -1,5 +1,6 @@
-import { Bell, ChevronDown, Menu, Moon, Search, Settings2, Sun } from 'lucide-react'
+import { Bell, ChevronDown, Menu, Search, Settings2 } from 'lucide-react'
 import { useState } from 'react'
+import ThemeToggle from './ThemeToggle'
 import { ROLE_META } from '../routes/config'
 import type { AppRole } from '../routes/types'
 
@@ -9,11 +10,9 @@ interface TopbarProps {
   onRoleChange: (role: AppRole) => void
   onMenuClick: () => void
   onSearch: (value: string) => void
-  theme: 'light' | 'dark'
-  onThemeChange: () => void
 }
 
-export default function Topbar({ activePageTitle, activeRole, onRoleChange, onMenuClick, onSearch, theme, onThemeChange }: TopbarProps) {
+export default function Topbar({ activePageTitle, activeRole, onRoleChange, onMenuClick, onSearch }: TopbarProps) {
   const [searchValue, setSearchValue] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
@@ -32,15 +31,7 @@ export default function Topbar({ activePageTitle, activeRole, onRoleChange, onMe
       </div>
       <div className="topbar-right">
         <span className="topbar-date">{date}</span>
-        <button
-          type="button"
-          className="icon-button theme-toggle"
-          onClick={onThemeChange}
-          aria-label={theme === 'dark' ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
-          title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+        <ThemeToggle />
         <label className="search-box">
           <Search size={17} />
           <input
