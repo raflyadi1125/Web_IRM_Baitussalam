@@ -1,0 +1,4649 @@
+{
+  "schemaVersion": "1",
+  "targetFamily": "sql",
+  "target": "postgres",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "roots": {
+    "Absensi": {
+      "model": "Absensi",
+      "namespace": "public"
+    },
+    "Feedback": {
+      "model": "Feedback",
+      "namespace": "public"
+    },
+    "Iuran": {
+      "model": "Iuran",
+      "namespace": "public"
+    },
+    "KategoriKeuangan": {
+      "model": "KategoriKeuangan",
+      "namespace": "public"
+    },
+    "Kegiatan": {
+      "model": "Kegiatan",
+      "namespace": "public"
+    },
+    "LogAktivitas": {
+      "model": "LogAktivitas",
+      "namespace": "public"
+    },
+    "Notulen": {
+      "model": "Notulen",
+      "namespace": "public"
+    },
+    "PanitiaKegiatan": {
+      "model": "PanitiaKegiatan",
+      "namespace": "public"
+    },
+    "Pengumuman": {
+      "model": "Pengumuman",
+      "namespace": "public"
+    },
+    "Pengurus": {
+      "model": "Pengurus",
+      "namespace": "public"
+    },
+    "PeriodeKepengurusan": {
+      "model": "PeriodeKepengurusan",
+      "namespace": "public"
+    },
+    "RencanaAnggaran": {
+      "model": "RencanaAnggaran",
+      "namespace": "public"
+    },
+    "Surat": {
+      "model": "Surat",
+      "namespace": "public"
+    },
+    "Transaksi": {
+      "model": "Transaksi",
+      "namespace": "public"
+    },
+    "User": {
+      "model": "User",
+      "namespace": "public"
+    }
+  },
+  "domain": {
+    "namespaces": {
+      "public": {
+        "enum": {
+          "JenisSurat": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "MASUK",
+                "value": "MASUK"
+              },
+              {
+                "name": "KELUAR",
+                "value": "KELUAR"
+              }
+            ]
+          },
+          "JenisTransaksi": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PEMASUKAN",
+                "value": "PEMASUKAN"
+              },
+              {
+                "name": "PENGELUARAN",
+                "value": "PENGELUARAN"
+              }
+            ]
+          },
+          "KategoriKegiatan": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RUTIN",
+                "value": "RUTIN"
+              },
+              {
+                "name": "KAJIAN",
+                "value": "KAJIAN"
+              },
+              {
+                "name": "SOSIAL",
+                "value": "SOSIAL"
+              },
+              {
+                "name": "HARI_BESAR",
+                "value": "HARI_BESAR"
+              },
+              {
+                "name": "RAPAT",
+                "value": "RAPAT"
+              },
+              {
+                "name": "LAINNYA",
+                "value": "LAINNYA"
+              }
+            ]
+          },
+          "MetodeAbsensi": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "QR",
+                "value": "QR"
+              },
+              {
+                "name": "MANUAL",
+                "value": "MANUAL"
+              }
+            ]
+          },
+          "MetodePembayaran": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "TUNAI",
+                "value": "TUNAI"
+              },
+              {
+                "name": "TRANSFER",
+                "value": "TRANSFER"
+              },
+              {
+                "name": "QRIS",
+                "value": "QRIS"
+              }
+            ]
+          },
+          "Role": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ADMIN",
+                "value": "ADMIN"
+              },
+              {
+                "name": "SEKRETARIS",
+                "value": "SEKRETARIS"
+              },
+              {
+                "name": "BENDAHARA",
+                "value": "BENDAHARA"
+              },
+              {
+                "name": "ANGGOTA",
+                "value": "ANGGOTA"
+              }
+            ]
+          },
+          "StatusFeedback": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "BARU",
+                "value": "BARU"
+              },
+              {
+                "name": "DIBACA",
+                "value": "DIBACA"
+              },
+              {
+                "name": "SELESAI",
+                "value": "SELESAI"
+              }
+            ]
+          },
+          "StatusIuran": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "BELUM_BAYAR",
+                "value": "BELUM_BAYAR"
+              },
+              {
+                "name": "LUNAS",
+                "value": "LUNAS"
+              }
+            ]
+          },
+          "StatusKegiatan": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "DRAFT",
+                "value": "DRAFT"
+              },
+              {
+                "name": "DIJADWALKAN",
+                "value": "DIJADWALKAN"
+              },
+              {
+                "name": "BERLANGSUNG",
+                "value": "BERLANGSUNG"
+              },
+              {
+                "name": "SELESAI",
+                "value": "SELESAI"
+              },
+              {
+                "name": "DIBATALKAN",
+                "value": "DIBATALKAN"
+              }
+            ]
+          },
+          "StatusKehadiran": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "HADIR",
+                "value": "HADIR"
+              },
+              {
+                "name": "IZIN",
+                "value": "IZIN"
+              },
+              {
+                "name": "SAKIT",
+                "value": "SAKIT"
+              },
+              {
+                "name": "ALPA",
+                "value": "ALPA"
+              }
+            ]
+          },
+          "StatusTransaksi": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "MENUNGGU",
+                "value": "MENUNGGU"
+              },
+              {
+                "name": "DISETUJUI",
+                "value": "DISETUJUI"
+              },
+              {
+                "name": "DITOLAK",
+                "value": "DITOLAK"
+              }
+            ]
+          },
+          "UserStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PENDING",
+                "value": "PENDING"
+              },
+              {
+                "name": "AKTIF",
+                "value": "AKTIF"
+              },
+              {
+                "name": "NONAKTIF",
+                "value": "NONAKTIF"
+              }
+            ]
+          }
+        },
+        "models": {
+          "Absensi": {
+            "fields": {
+              "dicatatOlehId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "kegiatanId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "keterangan": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "metode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "MetodeAbsensi",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusKehadiran",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "waktuHadir": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              },
+              "pencatat": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "dicatatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "dicatatOlehId": {
+                  "column": "dicatatOlehId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "keterangan": {
+                  "column": "keterangan"
+                },
+                "metode": {
+                  "column": "metode"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "userId": {
+                  "column": "userId"
+                },
+                "waktuHadir": {
+                  "column": "waktuHadir"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Absensi"
+            }
+          },
+          "Feedback": {
+            "fields": {
+              "balasan": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "pesan": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusFeedback",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "subjek": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "balasan": {
+                  "column": "balasan"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "pesan": {
+                  "column": "pesan"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "subjek": {
+                  "column": "subjek"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Feedback"
+            }
+          },
+          "Iuran": {
+            "fields": {
+              "bulan": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jumlah": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                }
+              },
+              "metode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "MetodePembayaran",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusIuran",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "tahun": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tanggalBayar": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "transaksiId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "transaksi": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "transaksiId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Transaksi",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "bulan": {
+                  "column": "bulan"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "jumlah": {
+                  "column": "jumlah"
+                },
+                "metode": {
+                  "column": "metode"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "tahun": {
+                  "column": "tahun"
+                },
+                "tanggalBayar": {
+                  "column": "tanggalBayar"
+                },
+                "transaksiId": {
+                  "column": "transaksiId"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Iuran"
+            }
+          },
+          "KategoriKeuangan": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jenis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "JenisTransaksi",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "nama": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "transaksi": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kategoriId"
+                  ]
+                },
+                "to": {
+                  "model": "Transaksi",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "jenis": {
+                  "column": "jenis"
+                },
+                "nama": {
+                  "column": "nama"
+                }
+              },
+              "namespaceId": "public",
+              "table": "KategoriKeuangan"
+            }
+          },
+          "Kegiatan": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "deskripsi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "dibuatOlehId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "judul": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kategori": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "KategoriKegiatan",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "lokasi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "periodeId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "posterUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "qrBerlakuDari": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "qrBerlakuSampai": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "qrToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusKegiatan",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "tanggalMulai": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "tanggalSelesai": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "absensi": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "Absensi",
+                  "namespace": "public"
+                }
+              },
+              "dibuatOleh": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "dibuatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "notulen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "Notulen",
+                  "namespace": "public"
+                }
+              },
+              "panitia": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "PanitiaKegiatan",
+                  "namespace": "public"
+                }
+              },
+              "periode": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "periodeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "PeriodeKepengurusan",
+                  "namespace": "public"
+                }
+              },
+              "rencanaAnggaran": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "RencanaAnggaran",
+                  "namespace": "public"
+                }
+              },
+              "surat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "Surat",
+                  "namespace": "public"
+                }
+              },
+              "transaksi": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kegiatanId"
+                  ]
+                },
+                "to": {
+                  "model": "Transaksi",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "deskripsi": {
+                  "column": "deskripsi"
+                },
+                "dibuatOlehId": {
+                  "column": "dibuatOlehId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "judul": {
+                  "column": "judul"
+                },
+                "kategori": {
+                  "column": "kategori"
+                },
+                "lokasi": {
+                  "column": "lokasi"
+                },
+                "periodeId": {
+                  "column": "periodeId"
+                },
+                "posterUrl": {
+                  "column": "posterUrl"
+                },
+                "qrBerlakuDari": {
+                  "column": "qrBerlakuDari"
+                },
+                "qrBerlakuSampai": {
+                  "column": "qrBerlakuSampai"
+                },
+                "qrToken": {
+                  "column": "qrToken"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "tanggalMulai": {
+                  "column": "tanggalMulai"
+                },
+                "tanggalSelesai": {
+                  "column": "tanggalSelesai"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Kegiatan"
+            }
+          },
+          "LogAktivitas": {
+            "fields": {
+              "aksi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "detail": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "entitas": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "entitasId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "aksi": {
+                  "column": "aksi"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "detail": {
+                  "column": "detail"
+                },
+                "entitas": {
+                  "column": "entitas"
+                },
+                "entitasId": {
+                  "column": "entitasId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "LogAktivitas"
+            }
+          },
+          "Notulen": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dibuatOlehId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kegiatanId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "dibuatOleh": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "dibuatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dibuatOlehId": {
+                  "column": "dibuatOlehId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isi": {
+                  "column": "isi"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Notulen"
+            }
+          },
+          "PanitiaKegiatan": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "kegiatanId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "peran": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "peran": {
+                  "column": "peran"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "PanitiaKegiatan"
+            }
+          },
+          "Pengumuman": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dibuatOlehId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "isi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "judul": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "penting": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "dibuatOleh": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "dibuatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dibuatOlehId": {
+                  "column": "dibuatOlehId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isi": {
+                  "column": "isi"
+                },
+                "judul": {
+                  "column": "judul"
+                },
+                "penting": {
+                  "column": "penting"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Pengumuman"
+            }
+          },
+          "Pengurus": {
+            "fields": {
+              "divisi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jabatan": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "periodeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "periode": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "periodeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "PeriodeKepengurusan",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "divisi": {
+                  "column": "divisi"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "jabatan": {
+                  "column": "jabatan"
+                },
+                "periodeId": {
+                  "column": "periodeId"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Pengurus"
+            }
+          },
+          "PeriodeKepengurusan": {
+            "fields": {
+              "aktif": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "mulai": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "nama": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "selesai": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "kegiatan": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "periodeId"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              },
+              "pengurus": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "periodeId"
+                  ]
+                },
+                "to": {
+                  "model": "Pengurus",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "aktif": {
+                  "column": "aktif"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "mulai": {
+                  "column": "mulai"
+                },
+                "nama": {
+                  "column": "nama"
+                },
+                "selesai": {
+                  "column": "selesai"
+                }
+              },
+              "namespaceId": "public",
+              "table": "PeriodeKepengurusan"
+            }
+          },
+          "RencanaAnggaran": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jumlahRencana": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                }
+              },
+              "kegiatanId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "uraian": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "jumlahRencana": {
+                  "column": "jumlahRencana"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "uraian": {
+                  "column": "uraian"
+                }
+              },
+              "namespaceId": "public",
+              "table": "RencanaAnggaran"
+            }
+          },
+          "Surat": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dibuatOlehId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "fileUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jenis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "JenisSurat",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "kegiatanId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "nomorSurat": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "perihal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "pihak": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tanggal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "dibuatOleh": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "dibuatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dibuatOlehId": {
+                  "column": "dibuatOlehId"
+                },
+                "fileUrl": {
+                  "column": "fileUrl"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "jenis": {
+                  "column": "jenis"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "nomorSurat": {
+                  "column": "nomorSurat"
+                },
+                "perihal": {
+                  "column": "perihal"
+                },
+                "pihak": {
+                  "column": "pihak"
+                },
+                "tanggal": {
+                  "column": "tanggal"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Surat"
+            }
+          },
+          "Transaksi": {
+            "fields": {
+              "buktiUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dicatatOlehId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "disetujuiOlehId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "disetujuiPada": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "jenis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "JenisTransaksi",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "jumlah": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                }
+              },
+              "kategoriId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "kegiatanId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "keterangan": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "metode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "MetodePembayaran",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "StatusTransaksi",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "tanggal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "dicatatOleh": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "dicatatOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "disetujuiOleh": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "disetujuiOlehId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "iuran": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "transaksiId"
+                  ]
+                },
+                "to": {
+                  "model": "Iuran",
+                  "namespace": "public"
+                }
+              },
+              "kategori": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kategoriId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "KategoriKeuangan",
+                  "namespace": "public"
+                }
+              },
+              "kegiatan": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kegiatanId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "buktiUrl": {
+                  "column": "buktiUrl"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dicatatOlehId": {
+                  "column": "dicatatOlehId"
+                },
+                "disetujuiOlehId": {
+                  "column": "disetujuiOlehId"
+                },
+                "disetujuiPada": {
+                  "column": "disetujuiPada"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "jenis": {
+                  "column": "jenis"
+                },
+                "jumlah": {
+                  "column": "jumlah"
+                },
+                "kategoriId": {
+                  "column": "kategoriId"
+                },
+                "kegiatanId": {
+                  "column": "kegiatanId"
+                },
+                "keterangan": {
+                  "column": "keterangan"
+                },
+                "metode": {
+                  "column": "metode"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "tanggal": {
+                  "column": "tanggal"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Transaksi"
+            }
+          },
+          "User": {
+            "fields": {
+              "alamat": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fotoUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "nama": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "noHp": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "password": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "Role",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "UserStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "absensi": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Absensi",
+                  "namespace": "public"
+                }
+              },
+              "absensiDicatat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dicatatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Absensi",
+                  "namespace": "public"
+                }
+              },
+              "feedback": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Feedback",
+                  "namespace": "public"
+                }
+              },
+              "iuran": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Iuran",
+                  "namespace": "public"
+                }
+              },
+              "kegiatanDibuat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dibuatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Kegiatan",
+                  "namespace": "public"
+                }
+              },
+              "logAktivitas": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "LogAktivitas",
+                  "namespace": "public"
+                }
+              },
+              "notulenDibuat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dibuatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Notulen",
+                  "namespace": "public"
+                }
+              },
+              "panitia": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "PanitiaKegiatan",
+                  "namespace": "public"
+                }
+              },
+              "pengumumanDibuat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dibuatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Pengumuman",
+                  "namespace": "public"
+                }
+              },
+              "pengurus": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Pengurus",
+                  "namespace": "public"
+                }
+              },
+              "suratDibuat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dibuatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Surat",
+                  "namespace": "public"
+                }
+              },
+              "transaksiDicatat": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "dicatatOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Transaksi",
+                  "namespace": "public"
+                }
+              },
+              "transaksiDisetujui": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "disetujuiOlehId"
+                  ]
+                },
+                "to": {
+                  "model": "Transaksi",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "alamat": {
+                  "column": "alamat"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "fotoUrl": {
+                  "column": "fotoUrl"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "nama": {
+                  "column": "nama"
+                },
+                "noHp": {
+                  "column": "noHp"
+                },
+                "password": {
+                  "column": "password"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "User"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "namespaces": {
+      "public": {
+        "entries": {
+          "table": {
+            "Absensi": {
+              "checks": [
+                {
+                  "expression": "\"metode\" IN ('QR', 'MANUAL')",
+                  "name": "Absensi_metode_check_158858d2",
+                  "prefix": "Absensi_metode_check"
+                },
+                {
+                  "expression": "\"status\" IN ('HADIR', 'IZIN', 'SAKIT', 'ALPA')",
+                  "name": "Absensi_status_check_66bd2628",
+                  "prefix": "Absensi_status_check"
+                }
+              ],
+              "columns": {
+                "dicatatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "keterangan": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "metode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "QR"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "MetodeAbsensi",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "HADIR"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusKehadiran",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "waktuHadir": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Absensi_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Absensi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Absensi_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Absensi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Absensi_dicatatOlehId_idx_e0684643"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "dicatatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Absensi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "dicatatOlehId"
+                  ],
+                  "name": "Absensi_dicatatOlehId_idx_e0684643",
+                  "prefix": "Absensi_dicatatOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "Absensi_kegiatanId_idx_3d0ec27d",
+                  "prefix": "Absensi_kegiatanId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "Absensi_userId_idx_a489d58a",
+                  "prefix": "Absensi_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "kegiatanId",
+                    "userId"
+                  ]
+                }
+              ]
+            },
+            "Feedback": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('BARU', 'DIBACA', 'SELESAI')",
+                  "name": "Feedback_status_check_1fd3df49",
+                  "prefix": "Feedback_status_check"
+                }
+              ],
+              "columns": {
+                "balasan": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "pesan": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "BARU"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusFeedback",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "subjek": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Feedback_userId_idx_a489d58a"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Feedback"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "Feedback_userId_idx_a489d58a",
+                  "prefix": "Feedback_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Iuran": {
+              "checks": [
+                {
+                  "expression": "\"metode\" IN ('TUNAI', 'TRANSFER', 'QRIS')",
+                  "name": "Iuran_metode_check_5df1f8da",
+                  "prefix": "Iuran_metode_check"
+                },
+                {
+                  "expression": "\"status\" IN ('BELUM_BAYAR', 'LUNAS')",
+                  "name": "Iuran_status_check_dc31e4be",
+                  "prefix": "Iuran_status_check"
+                }
+              ],
+              "columns": {
+                "bulan": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jumlah": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                },
+                "metode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "MetodePembayaran",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "BELUM_BAYAR"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusIuran",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "tahun": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "tanggalBayar": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "transaksiId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Iuran_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Iuran"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "unique": [
+                      "transaksiId"
+                    ]
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "transaksiId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Iuran"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Transaksi"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Iuran_status_idx_e98638ab",
+                  "prefix": "Iuran_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "Iuran_userId_idx_a489d58a",
+                  "prefix": "Iuran_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "transaksiId"
+                  ]
+                },
+                {
+                  "columns": [
+                    "userId",
+                    "bulan",
+                    "tahun"
+                  ]
+                }
+              ]
+            },
+            "KategoriKeuangan": {
+              "checks": [
+                {
+                  "expression": "\"jenis\" IN ('PEMASUKAN', 'PENGELUARAN')",
+                  "name": "KategoriKeuangan_jenis_check_b2cf41f8",
+                  "prefix": "KategoriKeuangan_jenis_check"
+                }
+              ],
+              "columns": {
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jenis": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "JenisTransaksi",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "nama": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "nama",
+                    "jenis"
+                  ]
+                }
+              ]
+            },
+            "Kegiatan": {
+              "checks": [
+                {
+                  "expression": "\"kategori\" IN ('RUTIN', 'KAJIAN', 'SOSIAL', 'HARI_BESAR', 'RAPAT', 'LAINNYA')",
+                  "name": "Kegiatan_kategori_check_7c5bc7f3",
+                  "prefix": "Kegiatan_kategori_check"
+                },
+                {
+                  "expression": "\"status\" IN ('DRAFT', 'DIJADWALKAN', 'BERLANGSUNG', 'SELESAI', 'DIBATALKAN')",
+                  "name": "Kegiatan_status_check_30699904",
+                  "prefix": "Kegiatan_status_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "deskripsi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "dibuatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "judul": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kategori": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "LAINNYA"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "KategoriKegiatan",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "lokasi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "periodeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "posterUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "qrBerlakuDari": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "qrBerlakuSampai": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "qrToken": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DRAFT"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusKegiatan",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "tanggalMulai": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "tanggalSelesai": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Kegiatan_periodeId_idx_ba54dc70"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "periodeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PeriodeKepengurusan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Kegiatan_dibuatOlehId_idx_b836c0f8"
+                  },
+                  "source": {
+                    "columns": [
+                      "dibuatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "dibuatOlehId"
+                  ],
+                  "name": "Kegiatan_dibuatOlehId_idx_b836c0f8",
+                  "prefix": "Kegiatan_dibuatOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "periodeId"
+                  ],
+                  "name": "Kegiatan_periodeId_idx_ba54dc70",
+                  "prefix": "Kegiatan_periodeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Kegiatan_status_idx_e98638ab",
+                  "prefix": "Kegiatan_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tanggalMulai"
+                  ],
+                  "name": "Kegiatan_tanggalMulai_idx_e616dd4b",
+                  "prefix": "Kegiatan_tanggalMulai_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "qrToken"
+                  ]
+                }
+              ]
+            },
+            "LogAktivitas": {
+              "columns": {
+                "aksi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "detail": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "entitas": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "entitasId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "LogAktivitas_userId_idx_a489d58a"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "LogAktivitas"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "LogAktivitas_createdAt_idx_9575dbd7",
+                  "prefix": "LogAktivitas_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "entitas",
+                    "entitasId"
+                  ],
+                  "name": "LogAktivitas_entitas_entitasId_idx_b071e45e",
+                  "prefix": "LogAktivitas_entitas_entitasId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "LogAktivitas_userId_idx_a489d58a",
+                  "prefix": "LogAktivitas_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Notulen": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "dibuatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "isi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Notulen_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Notulen"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Notulen_dibuatOlehId_idx_b836c0f8"
+                  },
+                  "source": {
+                    "columns": [
+                      "dibuatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Notulen"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "dibuatOlehId"
+                  ],
+                  "name": "Notulen_dibuatOlehId_idx_b836c0f8",
+                  "prefix": "Notulen_dibuatOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "Notulen_kegiatanId_idx_3d0ec27d",
+                  "prefix": "Notulen_kegiatanId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "PanitiaKegiatan": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "peran": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "PanitiaKegiatan_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PanitiaKegiatan"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "PanitiaKegiatan_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PanitiaKegiatan"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "PanitiaKegiatan_kegiatanId_idx_3d0ec27d",
+                  "prefix": "PanitiaKegiatan_kegiatanId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "PanitiaKegiatan_userId_idx_a489d58a",
+                  "prefix": "PanitiaKegiatan_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "kegiatanId",
+                    "userId"
+                  ]
+                }
+              ]
+            },
+            "Pengumuman": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "dibuatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "isi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "judul": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "penting": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Pengumuman_dibuatOlehId_idx_b836c0f8"
+                  },
+                  "source": {
+                    "columns": [
+                      "dibuatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Pengumuman"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "Pengumuman_createdAt_idx_9575dbd7",
+                  "prefix": "Pengumuman_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "dibuatOlehId"
+                  ],
+                  "name": "Pengumuman_dibuatOlehId_idx_b836c0f8",
+                  "prefix": "Pengumuman_dibuatOlehId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Pengurus": {
+              "columns": {
+                "divisi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jabatan": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "periodeId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Pengurus_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Pengurus"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Pengurus_periodeId_idx_ba54dc70"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "periodeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Pengurus"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PeriodeKepengurusan"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "periodeId"
+                  ],
+                  "name": "Pengurus_periodeId_idx_ba54dc70",
+                  "prefix": "Pengurus_periodeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "Pengurus_userId_idx_a489d58a",
+                  "prefix": "Pengurus_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "userId",
+                    "periodeId"
+                  ]
+                }
+              ]
+            },
+            "PeriodeKepengurusan": {
+              "columns": {
+                "aktif": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "mulai": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "nama": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "selesai": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "nama"
+                  ]
+                }
+              ]
+            },
+            "RencanaAnggaran": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jumlahRencana": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "uraian": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "RencanaAnggaran_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "RencanaAnggaran"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "RencanaAnggaran_kegiatanId_idx_3d0ec27d",
+                  "prefix": "RencanaAnggaran_kegiatanId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Surat": {
+              "checks": [
+                {
+                  "expression": "\"jenis\" IN ('MASUK', 'KELUAR')",
+                  "name": "Surat_jenis_check_9c938e04",
+                  "prefix": "Surat_jenis_check"
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "dibuatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "fileUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jenis": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "JenisSurat",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "nomorSurat": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "perihal": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "pihak": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "tanggal": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Surat_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Surat"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Surat_dibuatOlehId_idx_b836c0f8"
+                  },
+                  "source": {
+                    "columns": [
+                      "dibuatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Surat"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "dibuatOlehId"
+                  ],
+                  "name": "Surat_dibuatOlehId_idx_b836c0f8",
+                  "prefix": "Surat_dibuatOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "jenis",
+                    "tanggal"
+                  ],
+                  "name": "Surat_jenis_tanggal_idx_74557fc7",
+                  "prefix": "Surat_jenis_tanggal_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "Surat_kegiatanId_idx_3d0ec27d",
+                  "prefix": "Surat_kegiatanId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "nomorSurat"
+                  ]
+                }
+              ]
+            },
+            "Transaksi": {
+              "checks": [
+                {
+                  "expression": "\"jenis\" IN ('PEMASUKAN', 'PENGELUARAN')",
+                  "name": "Transaksi_jenis_check_b2cf41f8",
+                  "prefix": "Transaksi_jenis_check"
+                },
+                {
+                  "expression": "\"metode\" IN ('TUNAI', 'TRANSFER', 'QRIS')",
+                  "name": "Transaksi_metode_check_5df1f8da",
+                  "prefix": "Transaksi_metode_check"
+                },
+                {
+                  "expression": "\"status\" IN ('MENUNGGU', 'DISETUJUI', 'DITOLAK')",
+                  "name": "Transaksi_status_check_2aaf7672",
+                  "prefix": "Transaksi_status_check"
+                }
+              ],
+              "columns": {
+                "buktiUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "dicatatOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "disetujuiOlehId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "disetujuiPada": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "jenis": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "JenisTransaksi",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "jumlah": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 14,
+                    "scale": 2
+                  }
+                },
+                "kategoriId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "kegiatanId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "keterangan": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "metode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "TUNAI"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "MetodePembayaran",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "MENUNGGU"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "StatusTransaksi",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "tanggal": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Transaksi_kategoriId_idx_807b1d04"
+                  },
+                  "source": {
+                    "columns": [
+                      "kategoriId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Transaksi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KategoriKeuangan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Transaksi_kegiatanId_idx_3d0ec27d"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "kegiatanId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Transaksi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kegiatan"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Transaksi_dicatatOlehId_idx_e0684643"
+                  },
+                  "source": {
+                    "columns": [
+                      "dicatatOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Transaksi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Transaksi_disetujuiOlehId_idx_26ed4614"
+                  },
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "disetujuiOlehId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Transaksi"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "dicatatOlehId"
+                  ],
+                  "name": "Transaksi_dicatatOlehId_idx_e0684643",
+                  "prefix": "Transaksi_dicatatOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "disetujuiOlehId"
+                  ],
+                  "name": "Transaksi_disetujuiOlehId_idx_26ed4614",
+                  "prefix": "Transaksi_disetujuiOlehId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "jenis",
+                    "status"
+                  ],
+                  "name": "Transaksi_jenis_status_idx_796c9443",
+                  "prefix": "Transaksi_jenis_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kategoriId"
+                  ],
+                  "name": "Transaksi_kategoriId_idx_807b1d04",
+                  "prefix": "Transaksi_kategoriId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kegiatanId"
+                  ],
+                  "name": "Transaksi_kegiatanId_idx_3d0ec27d",
+                  "prefix": "Transaksi_kegiatanId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "tanggal"
+                  ],
+                  "name": "Transaksi_tanggal_idx_9e863ca6",
+                  "prefix": "Transaksi_tanggal_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "User": {
+              "checks": [
+                {
+                  "expression": "\"role\" IN ('ADMIN', 'SEKRETARIS', 'BENDAHARA', 'ANGGOTA')",
+                  "name": "User_role_check_9cdef463",
+                  "prefix": "User_role_check"
+                },
+                {
+                  "expression": "\"status\" IN ('PENDING', 'AKTIF', 'NONAKTIF')",
+                  "name": "User_status_check_79ca170f",
+                  "prefix": "User_status_check"
+                }
+              ],
+              "columns": {
+                "alamat": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "fotoUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "nama": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "noHp": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "password": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ANGGOTA"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Role",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PENDING"
+                  },
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "UserStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "role",
+                    "status"
+                  ],
+                  "name": "User_role_status_idx_e87879e1",
+                  "prefix": "User_role_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                }
+              ]
+            }
+          },
+          "valueSet": {
+            "JenisSurat": {
+              "kind": "valueSet",
+              "values": [
+                "MASUK",
+                "KELUAR"
+              ]
+            },
+            "JenisTransaksi": {
+              "kind": "valueSet",
+              "values": [
+                "PEMASUKAN",
+                "PENGELUARAN"
+              ]
+            },
+            "KategoriKegiatan": {
+              "kind": "valueSet",
+              "values": [
+                "RUTIN",
+                "KAJIAN",
+                "SOSIAL",
+                "HARI_BESAR",
+                "RAPAT",
+                "LAINNYA"
+              ]
+            },
+            "MetodeAbsensi": {
+              "kind": "valueSet",
+              "values": [
+                "QR",
+                "MANUAL"
+              ]
+            },
+            "MetodePembayaran": {
+              "kind": "valueSet",
+              "values": [
+                "TUNAI",
+                "TRANSFER",
+                "QRIS"
+              ]
+            },
+            "Role": {
+              "kind": "valueSet",
+              "values": [
+                "ADMIN",
+                "SEKRETARIS",
+                "BENDAHARA",
+                "ANGGOTA"
+              ]
+            },
+            "StatusFeedback": {
+              "kind": "valueSet",
+              "values": [
+                "BARU",
+                "DIBACA",
+                "SELESAI"
+              ]
+            },
+            "StatusIuran": {
+              "kind": "valueSet",
+              "values": [
+                "BELUM_BAYAR",
+                "LUNAS"
+              ]
+            },
+            "StatusKegiatan": {
+              "kind": "valueSet",
+              "values": [
+                "DRAFT",
+                "DIJADWALKAN",
+                "BERLANGSUNG",
+                "SELESAI",
+                "DIBATALKAN"
+              ]
+            },
+            "StatusKehadiran": {
+              "kind": "valueSet",
+              "values": [
+                "HADIR",
+                "IZIN",
+                "SAKIT",
+                "ALPA"
+              ]
+            },
+            "StatusTransaksi": {
+              "kind": "valueSet",
+              "values": [
+                "MENUNGGU",
+                "DISETUJUI",
+                "DITOLAK"
+              ]
+            },
+            "UserStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING",
+                "AKTIF",
+                "NONAKTIF"
+              ]
+            }
+          }
+        },
+        "id": "public",
+        "kind": "postgres-schema"
+      }
+    },
+    "storageHash": "d03dec81e5228099e6dff1d901e9f757d6edd5c8916aca414e65c22423822e95"
+  },
+  "execution": {
+    "executionHash": "37261ddff6224d87ed936997b6f50e78638f7cc1efe6e04c1fd2e09cc1b7d37d",
+    "mutations": {
+      "defaults": [
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Feedback",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Kegiatan",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Notulen",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Pengumuman",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Transaksi",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "instantNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "User",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "postgres": {
+      "distinctOn": true,
+      "forKeyShare": true,
+      "forNoKeyUpdate": true,
+      "jsonAgg": true,
+      "lateral": true,
+      "limit": true,
+      "orderBy": true,
+      "returning": true
+    },
+    "sql": {
+      "checkConstraint": true,
+      "defaultInInsert": true,
+      "enums": true,
+      "forShare": true,
+      "forUpdate": true,
+      "insertOnConflictSkip": true,
+      "insertOnConflictWithoutTarget": true,
+      "lateral": true,
+      "lockNowait": true,
+      "lockOf": true,
+      "lockSkipLocked": true,
+      "returning": true,
+      "scalarList": true
+    }
+  },
+  "extensions": {},
+  "meta": {},
+  "_generated": {
+    "warning": "⚠️  GENERATED FILE - DO NOT EDIT",
+    "message": "This file is automatically generated by \"prisma contract emit\".",
+    "regenerate": "To regenerate, run: prisma contract emit"
+  }
+}

@@ -1,0 +1,362 @@
+// use prisma-8
+
+// ----------------------------------------------------------------------------
+// ENUM
+// ----------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  SEKRETARIS
+  BENDAHARA
+  ANGGOTA
+}
+
+enum UserStatus {
+  PENDING // baru daftar, menunggu persetujuan admin
+  AKTIF
+  NONAKTIF
+}
+
+enum KategoriKegiatan {
+  RUTIN
+  KAJIAN
+  SOSIAL
+  HARI_BESAR
+  RAPAT
+  LAINNYA
+}
+
+enum StatusKegiatan {
+  DRAFT
+  DIJADWALKAN
+  BERLANGSUNG
+  SELESAI
+  DIBATALKAN
+}
+
+enum StatusKehadiran {
+  HADIR
+  IZIN
+  SAKIT
+  ALPA
+}
+
+enum MetodeAbsensi {
+  QR
+  MANUAL
+}
+
+enum JenisSurat {
+  MASUK
+  KELUAR
+}
+
+enum JenisTransaksi {
+  PEMASUKAN
+  PENGELUARAN
+}
+
+enum StatusTransaksi {
+  MENUNGGU // dicatat bendahara, belum disetujui admin
+  DISETUJUI
+  DITOLAK
+}
+
+enum MetodePembayaran {
+  TUNAI
+  TRANSFER
+  QRIS
+}
+
+enum StatusIuran {
+  BELUM_BAYAR
+  LUNAS
+}
+
+enum StatusFeedback {
+  BARU
+  DIBACA
+  SELESAI
+}
+
+// ----------------------------------------------------------------------------
+// PENGGUNA & KEPENGURUSAN
+// ----------------------------------------------------------------------------
+
+model User {
+  id        Int        @id @default(autoincrement())
+  nama      String
+  email     String     @unique
+  password  String // simpan HASH (bcrypt/argon2), jangan pernah plaintext
+  noHp      String?
+  alamat    String?
+  fotoUrl   String?
+  role      Role       @default(ANGGOTA)
+  status    UserStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt temporal.updatedAt()
+
+  pengurus           Pengurus[]
+  kegiatanDibuat     Kegiatan[]        @relation("KegiatanDibuat")
+  panitia            PanitiaKegiatan[]
+  absensi            Absensi[]         @relation("AbsensiPeserta")
+  absensiDicatat     Absensi[]         @relation("AbsensiDicatat")
+  notulenDibuat      Notulen[]
+  suratDibuat        Surat[]
+  pengumumanDibuat   Pengumuman[]
+  transaksiDicatat   Transaksi[]       @relation("TransaksiDicatat")
+  transaksiDisetujui Transaksi[]       @relation("TransaksiDisetujui")
+  iuran              Iuran[]
+  feedback           Feedback[]
+  logAktivitas       LogAktivitas[]
+
+  @@index([role, status])
+}
+
+model PeriodeKepengurusan {
+  id      Int      @id @default(autoincrement())
+  nama    String   @unique // contoh: "2026/2027"
+  mulai   DateTime
+  selesai DateTime
+  aktif   Boolean  @default(false)
+
+  pengurus Pengurus[]
+  kegiatan Kegiatan[]
+}
+
+model Pengurus {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  periodeId Int
+  jabatan   String // Ketua, Wakil Ketua, Sekretaris, Bendahara, Koordinator, dll.
+  divisi    String?
+
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  periode PeriodeKepengurusan @relation(fields: [periodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodeId])
+}
+
+// ----------------------------------------------------------------------------
+// KEGIATAN, PANITIA, ABSENSI
+// ----------------------------------------------------------------------------
+
+model Kegiatan {
+  id             Int              @id @default(autoincrement())
+  judul          String
+  deskripsi      String?
+  kategori       KategoriKegiatan @default(LAINNYA)
+  lokasi         String?
+  tanggalMulai   DateTime
+  tanggalSelesai DateTime?
+  status         StatusKegiatan   @default(DRAFT)
+  posterUrl      String?
+
+  // Absensi via QR: token unik per kegiatan, aktif pada rentang waktu tertentu
+  qrToken         String?   @unique
+  qrBerlakuDari   DateTime?
+  qrBerlakuSampai DateTime?
+
+  periodeId    Int?
+  dibuatOlehId Int
+  createdAt    DateTime @default(now())
+  updatedAt    temporal.updatedAt()
+
+  periode    PeriodeKepengurusan? @relation(fields: [periodeId], references: [id], onDelete: SetNull)
+  dibuatOleh User                 @relation("KegiatanDibuat", fields: [dibuatOlehId], references: [id])
+
+  panitia         PanitiaKegiatan[]
+  absensi         Absensi[]
+  notulen         Notulen[]
+  surat           Surat[]
+  transaksi       Transaksi[]
+  rencanaAnggaran RencanaAnggaran[]
+
+  @@index([tanggalMulai])
+  @@index([status])
+}
+
+model PanitiaKegiatan {
+  id         Int    @id @default(autoincrement())
+  kegiatanId Int
+  userId     Int
+  peran      String // Ketua Panitia, Sie Acara, Sie Konsumsi, dll.
+
+  kegiatan Kegiatan @relation(fields: [kegiatanId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([kegiatanId, userId])
+}
+
+model Absensi {
+  id            Int             @id @default(autoincrement())
+  kegiatanId    Int
+  userId        Int
+  status        StatusKehadiran @default(HADIR)
+  metode        MetodeAbsensi   @default(QR)
+  waktuHadir    DateTime        @default(now())
+  keterangan    String?
+  dicatatOlehId Int? // diisi jika sekretaris menginput manual
+
+  kegiatan Kegiatan @relation(fields: [kegiatanId], references: [id], onDelete: Cascade)
+  user     User     @relation("AbsensiPeserta", fields: [userId], references: [id], onDelete: Cascade)
+  pencatat User?    @relation("AbsensiDicatat", fields: [dicatatOlehId], references: [id], onDelete: SetNull)
+
+  // satu anggota hanya bisa absen sekali per kegiatan
+  @@unique([kegiatanId, userId])
+}
+
+// ----------------------------------------------------------------------------
+// ADMINISTRASI (SEKRETARIS)
+// ----------------------------------------------------------------------------
+
+model Notulen {
+  id           Int      @id @default(autoincrement())
+  kegiatanId   Int
+  isi          String
+  dibuatOlehId Int
+  createdAt    DateTime @default(now())
+  updatedAt    temporal.updatedAt()
+
+  kegiatan   Kegiatan @relation(fields: [kegiatanId], references: [id], onDelete: Cascade)
+  dibuatOleh User     @relation(fields: [dibuatOlehId], references: [id])
+}
+
+model Surat {
+  id           Int        @id @default(autoincrement())
+  nomorSurat   String     @unique
+  jenis        JenisSurat
+  perihal      String
+  pihak        String // asal surat (masuk) atau tujuan surat (keluar)
+  tanggal      DateTime
+  fileUrl      String?
+  kegiatanId   Int?
+  dibuatOlehId Int
+  createdAt    DateTime   @default(now())
+
+  kegiatan   Kegiatan? @relation(fields: [kegiatanId], references: [id], onDelete: SetNull)
+  dibuatOleh User      @relation(fields: [dibuatOlehId], references: [id])
+
+  @@index([jenis, tanggal])
+}
+
+model Pengumuman {
+  id           Int      @id @default(autoincrement())
+  judul        String
+  isi          String
+  penting      Boolean  @default(false)
+  dibuatOlehId Int
+  createdAt    DateTime @default(now())
+  updatedAt    temporal.updatedAt()
+
+  dibuatOleh User @relation(fields: [dibuatOlehId], references: [id])
+
+  @@index([createdAt])
+}
+
+// ----------------------------------------------------------------------------
+// KEUANGAN (BENDAHARA)
+// ----------------------------------------------------------------------------
+
+model KategoriKeuangan {
+  id    Int            @id @default(autoincrement())
+  nama  String // contoh: Iuran Kas, Donasi, Konsumsi, Perlengkapan
+  jenis JenisTransaksi
+
+  transaksi Transaksi[]
+
+  @@unique([nama, jenis])
+}
+
+model Transaksi {
+  id         Int              @id @default(autoincrement())
+  tanggal    DateTime
+  jenis      JenisTransaksi
+  jumlah     Numeric(14, 2)
+  keterangan String
+  metode     MetodePembayaran @default(TUNAI)
+  buktiUrl   String? // foto nota / bukti transfer
+  status     StatusTransaksi  @default(MENUNGGU)
+
+  kategoriId      Int
+  kegiatanId      Int? // diisi jika transaksi milik suatu kegiatan
+  dicatatOlehId   Int
+  disetujuiOlehId Int?
+  disetujuiPada   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       temporal.updatedAt()
+
+  kategori      KategoriKeuangan @relation(fields: [kategoriId], references: [id])
+  kegiatan      Kegiatan?        @relation(fields: [kegiatanId], references: [id], onDelete: SetNull)
+  dicatatOleh   User             @relation("TransaksiDicatat", fields: [dicatatOlehId], references: [id])
+  disetujuiOleh User?            @relation("TransaksiDisetujui", fields: [disetujuiOlehId], references: [id], onDelete: SetNull)
+
+  iuran Iuran?
+
+  @@index([tanggal])
+  @@index([jenis, status])
+}
+
+// Iuran/kas bulanan per anggota. Saat lunas, otomatis dibuatkan Transaksi PEMASUKAN.
+model Iuran {
+  id           Int               @id @default(autoincrement())
+  userId       Int
+  bulan        Int // 1 - 12
+  tahun        Int
+  jumlah       Numeric(14, 2)
+  status       StatusIuran       @default(BELUM_BAYAR)
+  tanggalBayar DateTime?
+  metode       MetodePembayaran?
+  transaksiId  Int?              @unique
+  createdAt    DateTime          @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaksi Transaksi? @relation(fields: [transaksiId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, bulan, tahun])
+  @@index([status])
+}
+
+// Rencana anggaran (RAB) per kegiatan. Realisasi dihitung dari Transaksi.
+model RencanaAnggaran {
+  id            Int            @id @default(autoincrement())
+  kegiatanId    Int
+  uraian        String
+  jumlahRencana Numeric(14, 2)
+  createdAt     DateTime       @default(now())
+
+  kegiatan Kegiatan @relation(fields: [kegiatanId], references: [id], onDelete: Cascade)
+}
+
+// ----------------------------------------------------------------------------
+// UMPAN BALIK & AUDIT
+// ----------------------------------------------------------------------------
+
+model Feedback {
+  id        Int            @id @default(autoincrement())
+  userId    Int?
+  subjek    String
+  pesan     String
+  status    StatusFeedback @default(BARU)
+  balasan   String?
+  createdAt DateTime       @default(now())
+  updatedAt temporal.updatedAt()
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+// Jejak audit: siapa mengubah apa. Penting untuk transparansi keuangan.
+model LogAktivitas {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  aksi      String // CREATE, UPDATE, DELETE, APPROVE, LOGIN, dll.
+  entitas   String // nama model, contoh: "Transaksi"
+  entitasId Int?
+  detail    Jsonb?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entitas, entitasId])
+  @@index([createdAt])
+}
