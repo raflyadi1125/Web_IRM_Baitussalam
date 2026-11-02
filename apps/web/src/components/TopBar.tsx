@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Menu, Search, Settings2 } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, Menu, Search, Settings2 } from 'lucide-react'
 import { useState } from 'react'
 import ThemeToggle from './ThemeToggle'
 import { ROLE_META } from '../routes/config'
@@ -7,12 +7,12 @@ import type { AppRole } from '../routes/types'
 interface TopbarProps {
   activePageTitle: string
   activeRole: AppRole
-  onRoleChange: (role: AppRole) => void
+  onLogout: () => void
   onMenuClick: () => void
   onSearch: (value: string) => void
 }
 
-export default function Topbar({ activePageTitle, activeRole, onRoleChange, onMenuClick, onSearch }: TopbarProps) {
+export default function Topbar({ activePageTitle, activeRole, onLogout, onMenuClick, onSearch }: TopbarProps) {
   const [searchValue, setSearchValue] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
@@ -69,18 +69,13 @@ export default function Topbar({ activePageTitle, activeRole, onRoleChange, onMe
               <span className="avatar avatar-topbar">{ROLE_META[activeRole].initials}</span>
               <div><strong>{ROLE_META[activeRole].label} IRM</strong><small>{ROLE_META[activeRole].description} · akun demo</small></div>
             </div>
-            <label className="role-select-label" htmlFor="preview-role">Pratinjau tampilan berdasarkan role</label>
-            <select
-              id="preview-role"
-              className="role-select"
-              value={activeRole}
-              onChange={(event) => onRoleChange(event.target.value as AppRole)}
+            <button
+              type="button"
+              onClick={onLogout}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
             >
-              {(Object.keys(ROLE_META) as AppRole[]).map((role) => (
-                <option key={role} value={role}>{ROLE_META[role].label}</option>
-              ))}
-            </select>
-            <p>Penggantian role ini hanya untuk pratinjau frontend. Autentikasi dan kontrol akses sebenarnya akan ditangani backend.</p>
+              <LogOut size={14} aria-hidden="true" /> Keluar
+            </button>
           </div>
         )}
       </div>

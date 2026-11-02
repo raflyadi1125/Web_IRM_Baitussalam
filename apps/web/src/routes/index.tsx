@@ -1,55 +1,64 @@
-import { useState } from 'react'
-import Sidebar from '../components/SideBar'
-import { useTheme } from '../contexts/ThemeContext'
-import Topbar from '../components/TopBar'
-import type { NavKey } from '../types'
-import AdminRoutes from './admin'
-import AnggotaRoutes from './anggota'
-import BendaharaRoutes from './bendahara'
-import { canRoleAccessPage, PAGE_LABELS } from './config'
-import SekretarisRoutes from './sekretaris'
-import type { AppRole, RoleRouteProps } from './types'
+import { useState } from "react";
+import Sidebar from "../components/SideBar";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import Topbar from "../components/TopBar";
+import LoginPage from "../pages/LoginPage";
+import type { NavKey } from "../types";
+import AdminRoutes from "./admin";
+import AnggotaRoutes from "./anggota";
+import BendaharaRoutes from "./bendahara";
+import { canRoleAccessPage, PAGE_LABELS } from "./config";
+import SekretarisRoutes from "./sekretaris";
+import type { AppRole, RoleRouteProps } from "./types";
 
 export default function AppRoutes() {
-  const [activeRole, setActiveRole] = useState<AppRole>('admin')
-  const [activePage, setActivePage] = useState<NavKey>('dashboard')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const { theme } = useTheme()
+  const { session, signOut } = useAuth();
+
+  if (!session) return <LoginPage />;
+
+  return <AuthenticatedApp activeRole={session.role} onLogout={signOut} />;
+}
+
+interface AuthenticatedAppProps {
+  activeRole: AppRole;
+  onLogout: () => void;
+}
+
+function AuthenticatedApp({ activeRole, onLogout }: AuthenticatedAppProps) {
+  const [activePage, setActivePage] = useState<NavKey>("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { theme } = useTheme();
 
   const navigate = (page: NavKey) => {
-    setActivePage(canRoleAccessPage(activeRole, page) ? page : 'dashboard')
-    setSearchQuery('')
-  }
-
-  const changeRole = (role: AppRole) => {
-    setActiveRole(role)
-    setActivePage('dashboard')
-    setSearchQuery('')
-    setSidebarOpen(false)
-  }
+    setActivePage(canRoleAccessPage(activeRole, page) ? page : "dashboard");
+    setSearchQuery("");
+  };
 
   const routeProps: RoleRouteProps = {
     activePage,
     searchQuery,
     onNavigate: navigate,
-  }
+  };
 
   const renderRoleRoutes = () => {
     switch (activeRole) {
-      case 'admin':
-        return <AdminRoutes {...routeProps} />
-      case 'sekretaris':
-        return <SekretarisRoutes {...routeProps} />
-      case 'bendahara':
-        return <BendaharaRoutes {...routeProps} />
-      case 'anggota':
-        return <AnggotaRoutes {...routeProps} />
+      case "admin":
+        return <AdminRoutes {...routeProps} />;
+      case "sekretaris":
+        return <SekretarisRoutes {...routeProps} />;
+      case "bendahara":
+        return <BendaharaRoutes {...routeProps} />;
+      case "anggota":
+        return <AnggotaRoutes {...routeProps} />;
     }
-  }
+  };
 
   return (
-    <div className={`app-shell min-h-screen ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
+    <div
+      className={`app-shell min-h-screen ${theme === "dark" ? "theme-dark" : "theme-light"}`}
+    >
       <Sidebar
         activePage={activePage}
         activeRole={activeRole}
@@ -62,7 +71,7 @@ export default function AppRoutes() {
           key={`${activeRole}-${activePage}`}
           activePageTitle={PAGE_LABELS[activePage]}
           activeRole={activeRole}
-          onRoleChange={changeRole}
+          onLogout={onLogout}
           onMenuClick={() => setSidebarOpen(true)}
           onSearch={setSearchQuery}
         />
@@ -70,5 +79,5 @@ export default function AppRoutes() {
         {renderRoleRoutes()}
       </div>
     </div>
-  )
+  );
 }

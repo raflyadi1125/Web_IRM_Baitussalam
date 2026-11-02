@@ -93,6 +93,11 @@ html[data-theme='dark'] { color-scheme: dark; }
 .app-shell.theme-dark .bg-amber-50 { background-color: #392b17; }
 .app-shell.theme-dark .border-amber-200 { border-color: #66502a; }
 .app-shell.theme-dark .text-amber-900 { color: #f4d394; }
+.app-shell.theme-dark .bg-red-50 { background-color: #3a1d1f; }
+.app-shell.theme-dark .border-red-200,
+.app-shell.theme-dark .border-red-300 { border-color: #6b3338; }
+.app-shell.theme-dark .text-red-800,
+.app-shell.theme-dark .text-red-700 { color: #f5b5b5; }
 .app-shell.theme-dark .bg-emerald-50.text-emerald-800 { background-color: #17372f; color: #a9e9cf; }
 .app-shell.theme-dark .border-emerald-200.text-emerald-800 { border-color: #315d50; }
 .app-shell.theme-dark select option { background: #111d2d; color: #edf5ff; }
