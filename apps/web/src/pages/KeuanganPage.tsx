@@ -15,7 +15,18 @@ import {
   TrendingUp,
   Wallet,
   X,
+  Bus,
+  Gift,
+  HandCoins,
+  HeartHandshake,
+  Landmark,
+  Package,
+  Shapes,
+  UtensilsCrossed,
+  Users,
+  type LucideIcon,
 } from 'lucide-react'
+import OptionCards, { type OptionCardItem, type OptionTone } from '../components/OptionCards'
 import type { AppRole } from '../routes/types'
 import {
   downloadCsv,
@@ -39,9 +50,29 @@ interface TransactionForm {
   relatedActivity: string
 }
 
-const categories: FinanceCategory[] = ['Saldo Awal', 'Infak', 'Donasi', 'Iuran Anggota', 'Konsumsi', 'Perlengkapan', 'Transportasi', 'Sosial', 'Lainnya']
 const incomeCategories: FinanceCategory[] = ['Saldo Awal', 'Infak', 'Donasi', 'Iuran Anggota', 'Lainnya']
 const expenseCategories: FinanceCategory[] = ['Konsumsi', 'Perlengkapan', 'Transportasi', 'Sosial', 'Lainnya']
+const directionCardOptions: OptionCardItem<FinanceDirection>[] = [
+  { value: 'Masuk', label: 'Kas masuk', description: 'Infak, donasi, iuran anggota', icon: ArrowDownLeft, tone: 'emerald' },
+  { value: 'Keluar', label: 'Kas keluar', description: 'Konsumsi, perlengkapan, kegiatan', icon: ArrowUpRight, tone: 'rose' },
+]
+const categoryMeta: Record<FinanceCategory, { icon: LucideIcon; tone: OptionTone }> = {
+  'Saldo Awal': { icon: Landmark, tone: 'blue' },
+  Infak: { icon: HandCoins, tone: 'emerald' },
+  Donasi: { icon: Gift, tone: 'violet' },
+  'Iuran Anggota': { icon: Users, tone: 'amber' },
+  Konsumsi: { icon: UtensilsCrossed, tone: 'amber' },
+  Perlengkapan: { icon: Package, tone: 'blue' },
+  Transportasi: { icon: Bus, tone: 'violet' },
+  Sosial: { icon: HeartHandshake, tone: 'emerald' },
+  Lainnya: { icon: Shapes, tone: 'slate' },
+}
+const toCategoryCards = (list: FinanceCategory[]): OptionCardItem<FinanceCategory>[] =>
+  list.map((category) => ({ value: category, label: category, ...categoryMeta[category] }))
+const categoryCardOptionsByDirection: Record<FinanceDirection, OptionCardItem<FinanceCategory>[]> = {
+  Masuk: toCategoryCards(incomeCategories),
+  Keluar: toCategoryCards(expenseCategories),
+}
 const emptyForm: TransactionForm = { date: getLocalDateValue(), direction: 'Masuk', category: 'Infak', description: '', amount: '', relatedActivity: '' }
 
 export default function KeuanganPage({ role, searchQuery = '' }: { role: AppRole; searchQuery?: string }) {
@@ -184,7 +215,7 @@ export default function KeuanganPage({ role, searchQuery = '' }: { role: AppRole
 
       <p className="flex items-start gap-2 text-xs leading-5 text-slate-400"><AlertCircleIcon /> Data awal dibuat sebagai contoh. Saldo, transaksi, dan laporan harus diverifikasi dengan catatan organisasi sebelum dipakai sebagai data resmi.</p>
 
-      {isModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/45 p-3 backdrop-blur-[2px] sm:p-6" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeModal() }}><section role="dialog" aria-modal="true" aria-labelledby="finance-modal-title" className="my-auto w-full max-w-2xl rounded-2xl bg-white shadow-2xl"><div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-6"><div><h2 id="finance-modal-title" className="text-lg font-bold text-slate-900">{editingTransaction ? 'Edit transaksi' : 'Catat transaksi baru'}</h2><p className="mt-1 text-sm text-slate-500">Masukkan informasi transaksi kas dengan benar.</p></div><button type="button" onClick={closeModal} aria-label="Tutup formulir" className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X size={18} /></button></div><form onSubmit={saveTransaction} className="space-y-4 p-5 sm:p-6"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Arus kas *</span><select value={form.direction} onChange={(event) => handleDirectionChange(event.target.value as FinanceDirection)} className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm outline-none focus:border-emerald-500"><option>Masuk</option><option>Keluar</option></select></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Kategori *</span><select value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as FinanceCategory }))} className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm outline-none focus:border-emerald-500">{categories.filter((category) => (form.direction === 'Masuk' ? incomeCategories : expenseCategories).includes(category)).map((category) => <option key={category}>{category}</option>)}</select></label></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Tanggal *</span><input required type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Nominal (Rp) *</span><input required type="number" min="1" step="1" inputMode="numeric" value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} placeholder="Contoh: 150000" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label></div><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Keterangan *</span><input required maxLength={140} value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Contoh: Pembelian konsumsi pengajian" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Kegiatan terkait (opsional)</span><input maxLength={120} value={form.relatedActivity} onChange={(event) => setForm((current) => ({ ...current, relatedActivity: event.target.value }))} placeholder="Contoh: Pengajian rutin Kamis" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label>{formError && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">{formError}</p>}<div className="flex flex-col-reverse justify-end gap-2 border-t border-slate-100 pt-4 sm:flex-row"><button type="button" onClick={closeModal} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button><button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"><CheckCircle2 size={16} /> {editingTransaction ? 'Simpan perubahan' : 'Simpan transaksi'}</button></div></form></section></div>}
+      {isModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/45 p-3 backdrop-blur-[2px] sm:p-6" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeModal() }}><section role="dialog" aria-modal="true" aria-labelledby="finance-modal-title" className="my-auto w-full max-w-2xl rounded-2xl bg-white shadow-2xl"><div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-6"><div><h2 id="finance-modal-title" className="text-lg font-bold text-slate-900">{editingTransaction ? 'Edit transaksi' : 'Catat transaksi baru'}</h2><p className="mt-1 text-sm text-slate-500">Masukkan informasi transaksi kas dengan benar.</p></div><button type="button" onClick={closeModal} aria-label="Tutup formulir" className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X size={18} /></button></div><form onSubmit={saveTransaction} className="space-y-4 p-5 sm:p-6"><OptionCards legend="Arus kas" name="finance-direction" markRequired variant="row" columns={2} value={form.direction} options={directionCardOptions} onChange={handleDirectionChange} /><OptionCards legend="Kategori" name="finance-category" markRequired variant="tile" columns={5} value={form.category} options={categoryCardOptionsByDirection[form.direction]} onChange={(category) => setForm((current) => ({ ...current, category }))} /><div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Tanggal *</span><input required type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Nominal (Rp) *</span><input required type="number" min="1" step="1" inputMode="numeric" value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} placeholder="Contoh: 150000" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label></div><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Keterangan *</span><input required maxLength={140} value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Contoh: Pembelian konsumsi pengajian" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Kegiatan terkait (opsional)</span><input maxLength={120} value={form.relatedActivity} onChange={(event) => setForm((current) => ({ ...current, relatedActivity: event.target.value }))} placeholder="Contoh: Pengajian rutin Kamis" className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label>{formError && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">{formError}</p>}<div className="flex flex-col-reverse justify-end gap-2 border-t border-slate-100 pt-4 sm:flex-row"><button type="button" onClick={closeModal} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button><button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"><CheckCircle2 size={16} /> {editingTransaction ? 'Simpan perubahan' : 'Simpan transaksi'}</button></div></form></section></div>}
     </main>
   )
 }

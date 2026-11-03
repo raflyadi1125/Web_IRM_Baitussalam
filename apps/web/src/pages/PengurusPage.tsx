@@ -17,7 +17,17 @@ import {
   UserCog,
   Users,
   X,
+  CalendarDays,
+  HeartHandshake,
+  Megaphone,
+  Music,
+  Package,
+  Shapes,
+  UserRound,
+  Wallet,
+  type LucideIcon,
 } from 'lucide-react'
+import OptionCards, { type OptionCardItem, type OptionTone } from '../components/OptionCards'
 
 type AccessRole = 'ADMIN' | 'SEKRETARIS' | 'BENDAHARA' | 'ANGGOTA'
 type OfficerStatus = 'Aktif' | 'Nonaktif'
@@ -82,6 +92,39 @@ const roles: { value: AccessRole; label: string; description: string }[] = [
 ]
 
 const positions = ['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Koordinator Kegiatan', 'Koordinator Humas', 'Koordinator Hadroh', 'Seksi Sosial', 'Seksi Perlengkapan', 'Lainnya']
+
+const positionMeta: Record<string, { icon: LucideIcon; tone: OptionTone }> = {
+  Ketua: { icon: Crown, tone: 'amber' },
+  'Wakil Ketua': { icon: UserCog, tone: 'blue' },
+  Sekretaris: { icon: ClipboardList, tone: 'violet' },
+  Bendahara: { icon: Wallet, tone: 'emerald' },
+  'Koordinator Kegiatan': { icon: CalendarDays, tone: 'blue' },
+  'Koordinator Humas': { icon: Megaphone, tone: 'rose' },
+  'Koordinator Hadroh': { icon: Music, tone: 'violet' },
+  'Seksi Sosial': { icon: HeartHandshake, tone: 'emerald' },
+  'Seksi Perlengkapan': { icon: Package, tone: 'amber' },
+}
+const positionCardOptions: OptionCardItem[] = positions.map((position) => ({
+  value: position,
+  label: position,
+  ...(positionMeta[position] ?? { icon: Shapes, tone: 'slate' as const }),
+}))
+const roleMeta: Record<AccessRole, { icon: LucideIcon; tone: OptionTone }> = {
+  ADMIN: { icon: ShieldCheck, tone: 'violet' },
+  SEKRETARIS: { icon: ClipboardList, tone: 'blue' },
+  BENDAHARA: { icon: Wallet, tone: 'emerald' },
+  ANGGOTA: { icon: UserRound, tone: 'slate' },
+}
+const roleCardOptions: OptionCardItem<AccessRole>[] = roles.map((role) => ({
+  value: role.value,
+  label: role.label,
+  description: role.description,
+  ...roleMeta[role.value],
+}))
+const statusCardOptions: OptionCardItem<OfficerStatus>[] = [
+  { value: 'Aktif', label: 'Aktif', description: 'Masih menjabat', icon: UserRound, tone: 'emerald' },
+  { value: 'Nonaktif', label: 'Nonaktif', description: 'Sudah tidak menjabat', icon: UserRound, tone: 'slate' },
+]
 
 type PermissionValue = boolean | 'read'
 
@@ -389,12 +432,17 @@ export default function PengurusPage({ searchQuery = '' }: { searchQuery?: strin
           <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4 sm:px-6"><div><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-700">Manajemen organisasi</p><h2 id="officer-modal-title" className="mt-1 text-lg font-bold text-slate-900">{editingOfficer ? 'Edit data pengurus' : 'Tambah pengurus'}</h2><p className="mt-1 text-xs text-slate-500">Pilih anggota terdaftar, lalu tentukan jabatan dan akses sistem.</p></div><button type="button" onClick={closeModal} aria-label="Tutup form" className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={18} /></button></div>
           <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5 sm:px-6">
             <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Anggota <span className="text-rose-500">*</span></span><select required value={formValues.memberCode} onChange={(event) => setFormValues((current) => ({ ...current, memberCode: event.target.value }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50"><option value="">Pilih anggota...</option>{(editingOfficer ? memberOptions.filter((member) => member.code === editingOfficer.memberCode || !resolvedOfficers.some((item) => item.memberCode === member.code)) : availableMembers).map((member) => <option key={member.code} value={member.code}>{member.name} · {member.code}</option>)}</select>{selectedMember && <span className="mt-1.5 flex items-center gap-1.5 text-[11px] text-slate-500"><Mail size={12} /> {selectedMember.email || 'Email belum diisi'} · {selectedMember.phone || 'No. HP belum diisi'}</span>}</label>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Jabatan <span className="text-rose-500">*</span></span><select required value={formValues.position} onChange={(event) => setFormValues((current) => ({ ...current, position: event.target.value, role: defaultRoleForPosition(event.target.value) }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50">{positions.map((position) => <option key={position}>{position}</option>)}</select></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Role akses sistem <span className="text-rose-500">*</span></span><select required value={formValues.role} onChange={(event) => setFormValues((current) => ({ ...current, role: event.target.value as AccessRole }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50">{roles.map((role) => <option key={role.value} value={role.value}>{role.label} ({role.value})</option>)}</select><span className="mt-1.5 block text-[11px] leading-4 text-slate-500">Role menentukan ruang lingkup akses saat otorisasi backend sudah diterapkan.</span></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Tanggal mulai menjabat <span className="text-rose-500">*</span></span><input type="date" required value={formValues.since} onChange={(event) => setFormValues((current) => ({ ...current, since: event.target.value }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50" /></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Status kepengurusan</span><select value={formValues.status} onChange={(event) => setFormValues((current) => ({ ...current, status: event.target.value as OfficerStatus }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50"><option>Aktif</option><option>Nonaktif</option></select></label>
-            </div>
+            <OptionCards legend="Jabatan" name="officer-position" compact markRequired variant="tile" columns={5}
+              value={formValues.position} options={positionCardOptions}
+              onChange={(position) => setFormValues((current) => ({ ...current, position, role: defaultRoleForPosition(position) }))} />
+            <OptionCards legend="Role akses sistem" name="officer-role" compact markRequired variant="row" columns={2}
+              value={formValues.role} options={roleCardOptions}
+              hint="Role menentukan ruang lingkup akses saat otorisasi backend sudah diterapkan."
+              onChange={(role) => setFormValues((current) => ({ ...current, role }))} />
+            <label className="block"><span className="mb-1.5 block text-xs font-semibold text-slate-700">Tanggal mulai menjabat <span className="text-rose-500">*</span></span><input type="date" required value={formValues.since} onChange={(event) => setFormValues((current) => ({ ...current, since: event.target.value }))} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-50" /></label>
+            <OptionCards legend="Status kepengurusan" name="officer-status" compact variant="row" columns={2}
+              value={formValues.status} options={statusCardOptions}
+              onChange={(status) => setFormValues((current) => ({ ...current, status }))} />
             {formError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs leading-5 text-rose-700">{formError}</p>}
             <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end"><button type="button" onClick={closeModal} className="h-10 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">Batal</button><button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white hover:bg-emerald-900"><Check size={15} /> {editingOfficer ? 'Simpan perubahan' : 'Tambah pengurus'}</button></div>
           </form>

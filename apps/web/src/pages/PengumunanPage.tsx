@@ -12,7 +12,12 @@ import {
   Send,
   Trash2,
   X,
+  Info,
+  PencilLine,
+  TriangleAlert,
+  type LucideIcon,
 } from 'lucide-react'
+import OptionCards, { type OptionCardItem, type OptionTone } from '../components/OptionCards'
 import type { AppRole } from '../routes/types'
 import { downloadCsv, formatIndonesianDate, getLocalDateValue } from '../data/finance'
 
@@ -47,6 +52,21 @@ const initialAnnouncements: Announcement[] = [
 
 const emptyForm: AnnouncementForm = { title: '', category: 'Informasi', content: '', date: getLocalDateValue(), status: 'Terbit' }
 const categories: AnnouncementCategory[] = ['Kegiatan', 'Informasi', 'Administrasi', 'Penting']
+const categoryMeta: Record<AnnouncementCategory, { icon: LucideIcon; tone: OptionTone }> = {
+  Kegiatan: { icon: CalendarDays, tone: 'emerald' },
+  Informasi: { icon: Info, tone: 'blue' },
+  Administrasi: { icon: FileText, tone: 'amber' },
+  Penting: { icon: TriangleAlert, tone: 'rose' },
+}
+const categoryCardOptions: OptionCardItem<AnnouncementCategory>[] = categories.map((category) => ({
+  value: category,
+  label: category,
+  ...categoryMeta[category],
+}))
+const statusCardOptions: OptionCardItem<AnnouncementStatus>[] = [
+  { value: 'Terbit', label: 'Terbit', description: 'Tampil untuk anggota', icon: Send, tone: 'emerald' },
+  { value: 'Draft', label: 'Draft', description: 'Belum tampil untuk anggota', icon: PencilLine, tone: 'amber' },
+]
 
 function readAnnouncements(): Announcement[] {
   if (typeof window === 'undefined') return initialAnnouncements
@@ -218,9 +238,10 @@ export default function PengumumanPage({ role, searchQuery = '' }: { role: AppRo
           <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-6"><div><h2 id="announcement-modal-title" className="text-lg font-bold text-slate-900">{editingAnnouncement ? 'Edit pengumuman' : 'Buat pengumuman'}</h2><p className="mt-1 text-sm text-slate-500">Isi informasi secara jelas agar mudah dipahami anggota.</p></div><button type="button" onClick={closeModal} aria-label="Tutup formulir" className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
           <form onSubmit={saveAnnouncement} className="space-y-4 p-5 sm:p-6">
             <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Judul pengumuman *</span><input autoFocus maxLength={120} value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" placeholder="Contoh: Pengajian rutin pekan ini" /></label>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Kategori</span><select value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value as AnnouncementCategory }))} className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm outline-none focus:border-emerald-500">{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Tanggal</span><input type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label></div>
+            <OptionCards legend="Kategori" name="announcement-category" variant="tile" columns={4} value={form.category} options={categoryCardOptions} onChange={(category) => setForm((current) => ({ ...current, category }))} />
+            <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Tanggal</span><input type="date" value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none focus:border-emerald-500" /></label>
             <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Isi pengumuman *</span><textarea rows={5} maxLength={2000} value={form.content} onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))} className="w-full resize-y rounded-xl border border-slate-200 px-3.5 py-3 text-sm leading-6 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" placeholder="Tuliskan informasi, waktu, lokasi, atau hal yang perlu diperhatikan..." /><span className="mt-1 block text-right text-xs text-slate-400">{form.content.length}/2000 karakter</span></label>
-            <label className="block"><span className="mb-1.5 block text-sm font-semibold text-slate-700">Status publikasi</span><select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as AnnouncementStatus }))} className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm outline-none focus:border-emerald-500"><option value="Terbit">Terbit — tampil untuk anggota</option><option value="Draft">Draft — belum tampil untuk anggota</option></select></label>
+            <OptionCards legend="Status publikasi" name="announcement-status" variant="row" columns={2} value={form.status} options={statusCardOptions} onChange={(status) => setForm((current) => ({ ...current, status }))} />
             {formError && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2.5 text-sm text-rose-700">{formError}</p>}
             <div className="flex flex-col-reverse justify-end gap-2 border-t border-slate-100 pt-4 sm:flex-row"><button type="button" onClick={closeModal} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button><button type="submit" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"><CheckCircle2 size={16} /> {editingAnnouncement ? 'Simpan perubahan' : 'Simpan pengumuman'}</button></div>
           </form>

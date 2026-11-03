@@ -18,6 +18,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import OptionCards, { type OptionCardItem } from '../components/OptionCards'
 
 type MemberStatus = 'Aktif' | 'Nonaktif'
 type StatusFilter = 'Semua status' | MemberStatus
@@ -51,6 +52,11 @@ const initialMembers: Member[] = [
   { id: 6, code: 'IRM-006', name: 'Putri Amelia', email: 'putri.amelia@example.com', phone: '0822-1122-3344', joinedAt: '2025-05-10', status: 'Aktif' },
   { id: 7, code: 'IRM-007', name: 'Fajar Maulana', email: 'fajar.maulana@example.com', phone: '0819-2233-4455', joinedAt: '2025-06-15', status: 'Aktif' },
   { id: 8, code: 'IRM-008', name: 'Intan Permata', email: 'intan.permata@example.com', phone: '0852-3344-5566', joinedAt: '2025-07-02', status: 'Aktif' },
+]
+
+const statusCardOptions: OptionCardItem<MemberStatus>[] = [
+  { value: 'Aktif', label: 'Aktif', description: 'Masih aktif sebagai anggota', icon: UserCheck, tone: 'emerald' },
+  { value: 'Nonaktif', label: 'Nonaktif', description: 'Tidak lagi aktif', icon: UserRoundX, tone: 'slate' },
 ]
 
 const emptyForm: MemberFormValues = {
@@ -321,7 +327,7 @@ export default function AnggotaPage({ searchQuery = '' }: { searchQuery?: string
               <div><label htmlFor="member-name" className="mb-1.5 block text-xs font-semibold text-slate-700">Nama lengkap <span className="text-rose-500">*</span></label><input id="member-name" required minLength={3} maxLength={80} autoFocus value={formValues.name} onChange={(event) => setFormValues({ ...formValues, name: event.target.value })} placeholder="Contoh: Ahmad Fauzan" className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" /></div>
               <div><label htmlFor="member-email" className="mb-1.5 block text-xs font-semibold text-slate-700">Email <span className="text-rose-500">*</span></label><input id="member-email" required type="email" maxLength={120} value={formValues.email} onChange={(event) => setFormValues({ ...formValues, email: event.target.value })} placeholder="nama@email.com" className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" /></div>
               <div><label htmlFor="member-phone" className="mb-1.5 block text-xs font-semibold text-slate-700">Nomor HP</label><input id="member-phone" type="tel" maxLength={20} value={formValues.phone} onChange={(event) => setFormValues({ ...formValues, phone: event.target.value })} placeholder="08xx-xxxx-xxxx" className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" /></div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2"><div><label htmlFor="member-joined" className="mb-1.5 block text-xs font-semibold text-slate-700">Tanggal bergabung <span className="text-rose-500">*</span></label><input id="member-joined" required type="date" value={formValues.joinedAt} onChange={(event) => setFormValues({ ...formValues, joinedAt: event.target.value })} className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" /></div><div><label htmlFor="member-status" className="mb-1.5 block text-xs font-semibold text-slate-700">Status anggota</label><select id="member-status" value={formValues.status} onChange={(event) => setFormValues({ ...formValues, status: event.target.value as MemberStatus })} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50"><option>Aktif</option><option>Nonaktif</option></select></div></div>
+              <div><label htmlFor="member-joined" className="mb-1.5 block text-xs font-semibold text-slate-700">Tanggal bergabung <span className="text-rose-500">*</span></label><input id="member-joined" required type="date" value={formValues.joinedAt} onChange={(event) => setFormValues({ ...formValues, joinedAt: event.target.value })} className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50" /></div><OptionCards legend="Status anggota" name="member-status" compact variant="row" columns={2} value={formValues.status} options={statusCardOptions} onChange={(status) => setFormValues({ ...formValues, status })} />
               {!editingMember && <p className="rounded-lg bg-slate-50 px-3 py-2.5 text-xs leading-5 text-slate-500">ID anggota akan dibuat otomatis setelah data ditambahkan.</p>}
               <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end"><button type="button" onClick={closeModal} className="h-10 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Batal</button><button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white transition hover:bg-emerald-900"><Check size={16} />{editingMember ? 'Simpan Perubahan' : 'Simpan Anggota'}</button></div>
             </form>
