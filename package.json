@@ -1,0 +1,21 @@
+{
+  "name": "Web_IRM_Baitussalam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+"scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "generate": "turbo run generate",
+    "migrate": "turbo run migrate",
+    "dev:api": "turbo run dev --filter=api"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.19.0",
+  "devDependencies": {
+    "turbo": "^2.11.10"
+  }
+}

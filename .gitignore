@@ -1,0 +1,46 @@
+
+# moon
+.moon/cache
+.moon/docker
+node_modules
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment variables (file .env.example tetap di-commit)
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+coverage/
+.vite/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Prisma
+*.db
+*.db-journal
+
+# Editor & OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cache & temporary
+.cache/
+.eslintcache
+*.tsbuildinfo
+tmp/
+temp/
