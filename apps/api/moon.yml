@@ -1,0 +1,24 @@
+language: 'typescript'
+type: 'application'
+
+tasks:
+  dev:
+    command: 'tsx watch src/server.ts'
+    local: true
+  build:
+    command: 'tsc -p tsconfig.json'
+    outputs: ['dist']
+  start:
+    command: 'node dist/server.js'
+    deps: ['~:build']
+    local: true
+  test:
+    command: 'vitest run'
+  prisma-generate:
+    command: 'prisma generate'
+  prisma-migrate:
+    command: 'prisma migrate dev'
+    local: true
+  prisma-seed:
+    command: 'tsx prisma/seed.ts'
+    local: true
