@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, BellRing, ChevronLeft, X } from "lucide-react";
+import { BellRing, ChevronLeft, ClipboardList, X } from "lucide-react";
 import {
   canRoleAccessPage,
   getNavigationForRole,
@@ -8,29 +8,33 @@ import {
 import type { AppRole } from "../routes/types";
 import type { NavKey } from "../types";
 
-interface SidebarProps {
+// Sidebar ini khusus untuk role sekretaris, jadi role tidak dikirim lewat props.
+const SEKRETARIS_ROLE: AppRole = "sekretaris";
+
+interface SekretarisSidebarProps {
   activePage: NavKey;
-  activeRole: AppRole;
   isOpen: boolean;
   onNavigate: (page: NavKey) => void;
   onClose: () => void;
 }
 
-export default function Sidebar({
+export default function SekretarisSidebar({
   activePage,
-  activeRole,
   isOpen,
   onNavigate,
   onClose,
-}: SidebarProps) {
+}: SekretarisSidebarProps) {
   const [logoFailed, setLogoFailed] = useState(false);
-  const navigationItems = getNavigationForRole(activeRole);
+  const sekretarisMeta = ROLE_META[SEKRETARIS_ROLE];
+  const navigationItems = getNavigationForRole(SEKRETARIS_ROLE);
+
   const primaryItems = navigationItems.filter(
     (item) => item.section === "utama",
   );
   const financeItems = navigationItems.filter(
     (item) => item.section === "keuangan",
   );
+
   const renderItems = (items: typeof navigationItems) =>
     items.map(({ key, label, icon: Icon }) => {
       const active = activePage === key;
@@ -59,7 +63,9 @@ export default function Sidebar({
           onClick={onClose}
         />
       )}
-      <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
+      <aside
+        className={`sidebar sidebar-sekretaris ${isOpen ? "sidebar-open" : ""}`}
+      >
         <div className="sidebar-brand">
           <div
             className="brand-mark brand-logo"
@@ -80,7 +86,7 @@ export default function Sidebar({
           </div>
           <div className="brand-copy">
             <span className="brand-title">IRM Baitussalam</span>
-            <span className="brand-subtitle">Sistem Informasi</span>
+            <span className="brand-subtitle">Panel Sekretaris</span>
           </div>
           <button
             className="sidebar-close lg:hidden"
@@ -93,19 +99,19 @@ export default function Sidebar({
 
         <div className="sidebar-community">
           <div className="community-icon">
-            <Activity size={17} />
+            <ClipboardList size={17} />
           </div>
           <div>
-            <p className="community-title">
-              Ruang {ROLE_META[activeRole].label}
+            <p className="community-title">Ruang {sekretarisMeta.label}</p>
+            <p className="community-subtitle">
+              Administrasi, surat, dan dokumentasi
             </p>
-            <p className="community-subtitle">Akses demo berdasarkan role</p>
           </div>
           <span className="online-dot" />
         </div>
 
-        <nav className="sidebar-nav" aria-label="Navigasi utama">
-          <p className="nav-section-label">MENU UTAMA</p>
+        <nav className="sidebar-nav" aria-label="Navigasi sekretaris">
+          <p className="nav-section-label">MENU SEKRETARIS</p>
           {renderItems(primaryItems)}
           {financeItems.length > 0 && (
             <>
@@ -121,14 +127,14 @@ export default function Sidebar({
           <div className="help-icon">
             <BellRing size={17} />
           </div>
-          <p className="help-title">Butuh bantuan?</p>
+          <p className="help-title">Pengumuman</p>
           <p className="help-text">
-            Hubungi admin jika ada kendala saat menggunakan sistem.
+            Lihat dan sampaikan informasi kegiatan kepada anggota.
           </p>
           <button
             onClick={() => {
               onNavigate(
-                canRoleAccessPage(activeRole, "pengumuman")
+                canRoleAccessPage(SEKRETARIS_ROLE, "pengumuman")
                   ? "pengumuman"
                   : "dashboard",
               );
@@ -136,21 +142,17 @@ export default function Sidebar({
             }}
             className="help-link"
           >
-            Lihat informasi <ChevronLeft size={14} className="rotate-180" />
+            Lihat pengumuman <ChevronLeft size={14} className="rotate-180" />
           </button>
         </div>
 
         <div className="sidebar-profile">
           <div className="avatar avatar-sidebar">
-            {ROLE_META[activeRole].initials}
+            {sekretarisMeta.initials}
           </div>
           <div className="profile-text">
-            <span className="profile-name">
-              {ROLE_META[activeRole].label} IRM
-            </span>
-            <span className="profile-role">
-              {ROLE_META[activeRole].description}
-            </span>
+            <span className="profile-name">{sekretarisMeta.label} IRM</span>
+            <span className="profile-role">{sekretarisMeta.description}</span>
           </div>
         </div>
       </aside>

@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertCircle, CheckCircle2, Eye, EyeOff, LoaderCircle, Lock, Mail, UserPlus, UserRound } from 'lucide-react'
-import ThemeToggle from '../components/ThemeToggle'
-import { useTheme } from '../contexts/ThemeContext'
-import { LoginError, register } from '../services/auth'
+import ThemeToggle from '../../components/ThemeToggle'
+import { useTheme } from '../../contexts/ThemeContext'
+import { LoginError, register } from '../../services/auth'
 import { BrandLogo, BrandPanel } from './LoginPage'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
