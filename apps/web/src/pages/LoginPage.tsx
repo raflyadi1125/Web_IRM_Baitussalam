@@ -1,56 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import {
-  AlertCircle,
-  ClipboardList,
-  Eye,
-  EyeOff,
-  KeyRound,
-  LoaderCircle,
-  Lock,
-  LogIn,
-  Mail,
-  ShieldCheck,
-  UserRound,
-  Wallet,
-  type LucideIcon,
-} from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { AlertCircle, Eye, EyeOff, LoaderCircle, Lock, LogIn, Mail } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
-import { getNavigationForRole, ROLE_META } from '../routes/config'
-import type { AppRole } from '../routes/types'
-import { DEMO_ACCOUNTS, LoginError } from '../services/auth'
-
-interface RoleLoginMeta {
-  icon: LucideIcon
-  caption: string
-  description: string
-}
-
-const LOGIN_ROLES: readonly AppRole[] = ['admin', 'sekretaris', 'bendahara', 'anggota']
-
-const ROLE_LOGIN_META: Record<AppRole, RoleLoginMeta> = {
-  admin: {
-    icon: ShieldCheck,
-    caption: 'Administrator',
-    description: 'Kelola data anggota, pengurus, kegiatan, keuangan, dan laporan organisasi.',
-  },
-  sekretaris: {
-    icon: ClipboardList,
-    caption: 'Administrasi',
-    description: 'Kelola kegiatan dan absensi, pengumuman, serta laporan administrasi.',
-  },
-  bendahara: {
-    icon: Wallet,
-    caption: 'Keuangan',
-    description: 'Catat pemasukan dan pengeluaran, serta pantau laporan keuangan.',
-  },
-  anggota: {
-    icon: UserRound,
-    caption: 'User',
-    description: 'Lihat jadwal kegiatan dan pengumuman terbaru organisasi.',
-  },
-}
+import { LoginError } from '../services/auth'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -67,10 +21,14 @@ function validate(email: string, password: string): FieldErrors {
   return errors
 }
 
+const inputClass = (hasError: boolean) =>
+  `h-11 w-full rounded-xl border bg-white pl-10 pr-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-emerald-800 ${
+    hasError ? 'border-red-300' : 'border-slate-200'
+  }`
+
 export default function LoginPage() {
   const { signIn } = useAuth()
   const { theme } = useTheme()
-  const [selectedRole, setSelectedRole] = useState<AppRole>('admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -78,25 +36,6 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
-
-  const roleMeta = ROLE_META[selectedRole]
-  const loginMeta = ROLE_LOGIN_META[selectedRole]
-  const demoAccount = DEMO_ACCOUNTS.find((account) => account.role === selectedRole)
-  const accessibleMenus = getNavigationForRole(selectedRole).map((item) => item.label)
-
-  const changeRole = (role: AppRole) => {
-    setSelectedRole(role)
-    setError('')
-    setFieldErrors({})
-  }
-
-  const fillDemoAccount = () => {
-    if (!demoAccount) return
-    setEmail(demoAccount.email)
-    setPassword(demoAccount.password)
-    setError('')
-    setFieldErrors({})
-  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -109,18 +48,14 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      await signIn({ role: selectedRole, email, password }, remember)
-      // Berhasil: AppRoutes langsung menampilkan dashboard, halaman ini dilepas.
+      // Peran tidak dikirim: ditentukan oleh akun (dari backend), lalu AppRoutes
+      // menampilkan dashboard dan menu sesuai peran tersebut.
+      await signIn({ email, password }, remember)
     } catch (caught) {
       setError(caught instanceof LoginError ? caught.message : 'Terjadi kesalahan saat masuk. Silakan coba lagi.')
       setSubmitting(false)
     }
   }
-
-  const inputClass = (hasError: boolean) =>
-    `h-11 w-full rounded-xl border bg-white pl-10 pr-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-emerald-800 ${
-      hasError ? 'border-red-300' : 'border-slate-200'
-    }`
 
   return (
     <div className={`app-shell ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
@@ -145,42 +80,11 @@ export default function LoginPage() {
               <div className="eyebrow">
                 <span className="eyebrow-dot" /> MASUK KE SISTEM
               </div>
-              <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">Masuk sebagai {roleMeta.label}</h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500">{loginMeta.description}</p>
-
-              <fieldset className="mt-6">
-                <legend className="mb-2 text-xs font-semibold text-slate-700">Pilih peran</legend>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {LOGIN_ROLES.map((role) => {
-                    const Icon = ROLE_LOGIN_META[role].icon
-                    const selected = role === selectedRole
-                    return (
-                      <label
-                        key={role}
-                        className={`flex cursor-pointer flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center transition focus-within:ring-2 focus-within:ring-emerald-400 ${
-                          selected
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="login-role"
-                          value={role}
-                          checked={selected}
-                          onChange={() => changeRole(role)}
-                          className="sr-only"
-                        />
-                        <Icon size={18} aria-hidden="true" />
-                        <span className="text-xs font-semibold">{ROLE_META[role].label}</span>
-                        <span className={`text-[10px] ${selected ? 'text-emerald-700' : 'text-slate-500'}`}>
-                          {ROLE_LOGIN_META[role].caption}
-                        </span>
-                      </label>
-                    )
-                  })}
-                </div>
-              </fieldset>
+              <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">Masuk ke akun Anda</h1>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Gunakan email dan kata sandi akun Anda. Menu yang tampil menyesuaikan peran akun
+                (Admin, Sekretaris, Bendahara, atau Anggota).
+              </p>
 
               <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
                 <div>
@@ -284,37 +188,18 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      <LogIn size={17} aria-hidden="true" /> Masuk sebagai {roleMeta.label}
+                      <LogIn size={17} aria-hidden="true" /> Masuk
                     </>
                   )}
                 </button>
+
+                <p className="text-center text-sm text-slate-500">
+                  Belum punya akun?{' '}
+                  <Link to="/register" className="font-medium text-emerald-800 hover:underline">
+                    Daftar di sini
+                  </Link>
+                </p>
               </form>
-
-              <p className="mt-4 text-xs leading-5 text-slate-500">
-                <span className="font-semibold text-slate-700">Menu yang tersedia:</span> {accessibleMenus.join(', ')}.
-              </p>
-
-              {demoAccount && (
-                <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs leading-5 text-amber-900">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <KeyRound size={15} aria-hidden="true" /> Akun demo {roleMeta.label}
-                  </div>
-                  <p className="mt-1.5">
-                    Email <code className="font-mono">{demoAccount.email}</code> · Kata sandi{' '}
-                    <code className="font-mono">{demoAccount.password}</code>
-                  </p>
-                  <button
-                    type="button"
-                    onClick={fillDemoAccount}
-                    className="mt-2 font-semibold underline underline-offset-2"
-                  >
-                    Isi otomatis
-                  </button>
-                  <p className="mt-2 opacity-80">
-                    Mode demo untuk pratinjau frontend. Autentikasi sebenarnya akan ditangani backend.
-                  </p>
-                </div>
-              )}
 
               <p className="mt-8 text-center text-[11px] text-slate-500">
                 © {new Date().getFullYear()} IRM Baitussalam
@@ -327,7 +212,7 @@ export default function LoginPage() {
   )
 }
 
-function BrandPanel() {
+export function BrandPanel() {
   return (
     <aside className="relative hidden overflow-hidden bg-linear-to-br from-[#14342a] via-[#1d4a3c] to-[#2f6857] text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
       <div
@@ -364,7 +249,7 @@ function BrandPanel() {
   )
 }
 
-function BrandLogo({ className = '' }: { className?: string }) {
+export function BrandLogo({ className = '' }: { className?: string }) {
   const [failed, setFailed] = useState(false)
 
   return (

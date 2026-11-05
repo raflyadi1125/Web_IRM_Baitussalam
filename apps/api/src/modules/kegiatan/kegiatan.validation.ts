@@ -1,13 +1,15 @@
 import { z } from 'zod';
-import { STATUS_KEGIATAN } from './kegiatan.type';
+import { KATEGORI_KEGIATAN, STATUS_KEGIATAN } from './kegiatan.type';
 
 export const createKegiatanSchema = z.object({
   periodeId: z.coerce.number().int().positive().optional(),
-  nama: z.string().trim().min(3),
+  judul: z.string().trim().min(3),
   deskripsi: z.string().optional(),
+  kategori: z.enum(KATEGORI_KEGIATAN).default('LAINNYA'),
   lokasi: z.string().optional(),
   tanggalMulai: z.coerce.date(),
   tanggalSelesai: z.coerce.date().optional(),
+  posterUrl: z.string().trim().optional(),
   status: z.enum(STATUS_KEGIATAN).default('DRAFT'),
 });
 export const updateKegiatanSchema = createKegiatanSchema.partial();

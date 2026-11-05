@@ -1,2 +1,2 @@
 import './env.ts';
-export { db } from 'database';
+export { db, and, or, not, all } from 'database';

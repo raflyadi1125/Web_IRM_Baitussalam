@@ -4,8 +4,8 @@ import { contractFromJson } from "@prisma/orm-postgres/static";
 import "temporal-polyfill/global";
 
 import service from "../../service.ts";
-import type { Contract } from "./generated/contract.d.ts";
-import contractJson from "./generated/contract.json" with { type: "json" };
+import type { Contract } from "./contract.d.ts";
+import contractJson from "./contract.json" with { type: "json" };
 
 export const contract = contractFromJson<Contract>(contractJson);
 
@@ -22,3 +22,5 @@ export const db =
   (process.env.DATABASE_URL
     ? postgres({ contract, url: process.env.DATABASE_URL })
     : postgres({ contract }));
+
+export { and, or, not, all } from "@prisma/orm-postgres/orm-client";

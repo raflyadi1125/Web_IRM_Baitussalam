@@ -17,7 +17,7 @@ export const logAudit = async (
   detail?: JsonValue,
 ) => {
   try {
-    await db.orm.public.AuditLog.create({ userId, aksi, entitas, entitasId, detail });
+    await db.orm.public.LogAktivitas.create({ userId, aksi, entitas, entitasId, detail });
   } catch (err) {
     console.error('Gagal mencatat audit', err);
   }
@@ -36,16 +36,22 @@ export const list = async (query: {
   };
 
   const { items, total } = await db.transaction(async (tx) => {
-    const base = tx.orm.public.AuditLog.where(where);
+    const base = tx.orm.public.LogAktivitas.where(where);
     const items = await base
       .orderBy((a) => a.createdAt.desc())
-      .take(limit)
-      .skip(skip)
+      .limit(limit)
+      .offset(skip)
       .include('user')
       .all();
     const { total } = await base.aggregate((a) => ({ total: a.count() }));
     return { items, total };
   });
 
-  return { items, meta: buildMeta(page, limit, total) };
+  // Jangan kirim hash password ke klien: sisakan hanya data dasar pengguna.
+  const safeItems = items.map(({ user, ...rest }) => ({
+    ...rest,
+    user: user ? { id: user.id, nama: user.nama, email: user.email, role: user.role } : null,
+  }));
+
+  return { items: safeItems, meta: buildMeta(page, limit, total) };
 };

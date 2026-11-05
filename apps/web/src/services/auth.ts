@@ -2,6 +2,7 @@ import { configureApi, http, type ApiError } from './api'
 import { ROLE_META } from '../routes/config'
 import type { AppRole } from '../routes/types'
 
+
 export interface AuthSession {
   role: AppRole
   name: string
@@ -11,12 +12,25 @@ export interface AuthSession {
 }
 
 export interface LoginCredentials {
-  role: AppRole
+  /** Opsional: bila diisi, peran akun harus sama. Bila kosong, peran ditentukan oleh akun itu sendiri. */
+  role?: AppRole
   email: string
   password: string
 }
 
-export type LoginErrorCode = 'INVALID_CREDENTIALS' | 'WRONG_ROLE' | 'NETWORK' | 'SERVER'
+export interface RegisterPayload {
+  nama: string
+  email: string
+  password: string
+}
+
+export type LoginErrorCode =
+  | 'INVALID_CREDENTIALS'
+  | 'WRONG_ROLE'
+  | 'NETWORK'
+  | 'SERVER'
+  | 'EMAIL_TAKEN'
+  | 'VALIDATION'
 
 export class LoginError extends Error {
   readonly code: LoginErrorCode
@@ -46,8 +60,8 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
 
 const USE_DEMO_AUTH = import.meta.env.VITE_USE_DEMO_AUTH === 'true'
 
-function assertRole(account: AuthSession, role: AppRole) {
-  if (account.role !== role) {
+function assertRole(account: AuthSession, role?: AppRole) {
+  if (role && account.role !== role) {
     throw new LoginError(
       'WRONG_ROLE',
       `Akun ini terdaftar sebagai ${ROLE_META[account.role].label}, bukan ${ROLE_META[role].label}. Pilih peran yang sesuai.`,
@@ -72,18 +86,29 @@ async function loginDemo({ role, email, password }: LoginCredentials): Promise<A
 /**
  * Kontrak backend:
  *   POST /auth/login  { email, password }
- *   200 -> { token: string, user: { name: string, email: string, role: AppRole } }
- *   401 -> email/sandi salah
+ *   200 -> { success: true, data: { token: string, user: { nama, email, role } } }
+ *   401 -> email/sandi salah, 403 -> akun pending/nonaktif
  */
-interface LoginApiResponse {
+interface LoginApiUser {
+  nama?: string
+  name?: string
+  email: string
+  role: string
+}
+
+interface LoginApiBody {
   token: string
-  user: { name: string; email: string; role: string }
+  user: LoginApiUser
 }
 
 async function loginApi({ role, email, password }: LoginCredentials): Promise<AuthSession> {
-  let data: LoginApiResponse
+  let body: LoginApiBody
   try {
-    data = await http.post<LoginApiResponse>('/auth/login', { email: email.trim(), password })
+    const res = await http.post<LoginApiBody & { data?: LoginApiBody }>('/auth/login', {
+      email: email.trim(),
+      password,
+    })
+    body = res.data ?? res
   } catch (caught) {
     const err = caught as ApiError
     if (err.status === 400 || err.status === 401) {
@@ -95,15 +120,16 @@ async function loginApi({ role, email, password }: LoginCredentials): Promise<Au
     throw new LoginError('SERVER', err.message || 'Terjadi kesalahan pada server. Silakan coba lagi.')
   }
 
-  if (!Object.hasOwn(ROLE_META, data.user.role)) {
-    throw new LoginError('SERVER', 'Peran akun tidak dikenali oleh aplikasi.')
+  const apiRole = body?.user?.role?.toLowerCase()
+  if (!body?.token || !apiRole || !Object.hasOwn(ROLE_META, apiRole)) {
+    throw new LoginError('SERVER', 'Respons server tidak sesuai atau peran akun tidak dikenali.')
   }
 
   const session: AuthSession = {
-    role: data.user.role as AppRole,
-    name: data.user.name,
-    email: data.user.email,
-    token: data.token,
+    role: apiRole as AppRole,
+    name: body.user.nama ?? body.user.name ?? body.user.email,
+    email: body.user.email,
+    token: body.token,
   }
   assertRole(session, role)
 
@@ -113,6 +139,49 @@ async function loginApi({ role, email, password }: LoginCredentials): Promise<Au
 /** Satu-satunya titik masuk login; komponen lain tidak perlu tahu sumber datanya. */
 export function login(credentials: LoginCredentials): Promise<AuthSession> {
   return USE_DEMO_AUTH ? loginDemo(credentials) : loginApi(credentials)
+}
+
+async function registerDemo({ email }: RegisterPayload): Promise<void> {
+  await new Promise((resolve) => window.setTimeout(resolve, 600))
+
+  const normalizedEmail = email.trim().toLowerCase()
+  if (DEMO_ACCOUNTS.some((item) => item.email === normalizedEmail)) {
+    throw new LoginError('EMAIL_TAKEN', 'Email ini sudah terdaftar. Gunakan email lain atau masuk.')
+  }
+  // Mode demo: pendaftaran hanya disimulasikan, tidak ada data yang disimpan.
+}
+
+/**
+ * Kontrak backend:
+ *   POST /auth/register  { nama, email, password }
+ *   201/200 -> akun dibuat (peran "anggota" ditetapkan oleh server)
+ *   409 -> email sudah terdaftar, 400/422 -> data tidak valid
+ */
+async function registerApi({ nama, email, password }: RegisterPayload): Promise<void> {
+  try {
+    await http.post('/auth/register', {
+      nama: nama.trim(),
+      email: email.trim(),
+      password,
+    })
+  } catch (caught) {
+    const err = caught as ApiError
+    if (err.status === 409) {
+      throw new LoginError('EMAIL_TAKEN', 'Email ini sudah terdaftar. Gunakan email lain atau masuk.')
+    }
+    if (err.status === 400 || err.status === 422) {
+      throw new LoginError('VALIDATION', err.message || 'Data pendaftaran belum valid. Periksa kembali isian Anda.')
+    }
+    if (err.status === 0) {
+      throw new LoginError('NETWORK', 'Tidak dapat terhubung ke server. Pastikan API sedang berjalan.')
+    }
+    throw new LoginError('SERVER', err.message || 'Terjadi kesalahan pada server. Silakan coba lagi.')
+  }
+}
+
+/** Satu-satunya titik masuk pendaftaran. Peran tidak dikirim: server menetapkannya sebagai anggota. */
+export function register(payload: RegisterPayload): Promise<void> {
+  return USE_DEMO_AUTH ? registerDemo(payload) : registerApi(payload)
 }
 
 const SESSION_STORAGE_KEY = 'irm-baitussalam:session'

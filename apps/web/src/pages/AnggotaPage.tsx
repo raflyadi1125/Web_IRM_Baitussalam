@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Download,
   Filter,
+  Lock,
   Mail,
   Pencil,
   Phone,
@@ -25,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 import OptionCards, { type OptionCardItem } from "../components/OptionCards";
+import { useAuth } from "../contexts/AuthContext";
 
 type MemberStatus = "Aktif" | "Nonaktif";
 type StatusFilter = "Semua status" | MemberStatus;
@@ -227,6 +229,12 @@ export default function AnggotaPage({
 }: {
   searchQuery?: string;
 }) {
+  const { session } = useAuth();
+  // Hanya admin yang boleh mengelola (tambah, edit, hapus, ekspor).
+  // Role lain tetap bisa melihat daftar, tetapi tanpa tombol aksi.
+  // Catatan: ini hanya pembatasan tampilan. Pembatasan sebenarnya harus ada di backend.
+  const canManage = session?.role === "admin";
+
   const [members, setMembers] = useState<Member[]>(readStoredMembers);
   const [localSearch, setLocalSearch] = useState("");
   const [statusFilter, setStatusFilter] =
@@ -271,6 +279,7 @@ export default function AnggotaPage({
   const inactiveCount = members.length - activeCount;
 
   const openCreateModal = () => {
+    if (!canManage) return;
     setEditingMember(null);
     setFormValues({
       ...emptyForm,
@@ -281,6 +290,7 @@ export default function AnggotaPage({
   };
 
   const openEditModal = (member: Member) => {
+    if (!canManage) return;
     setEditingMember(member);
     setFormValues({
       name: member.name,
@@ -301,6 +311,7 @@ export default function AnggotaPage({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canManage) return;
     setFormError("");
 
     const normalizedEmail = formValues.email.trim().toLocaleLowerCase("id-ID");
@@ -330,9 +341,7 @@ export default function AnggotaPage({
             : member,
         ),
       );
-      setNotice(
-        `Data ${formValues.name.trim()} berhasil diperbarui di penyimpanan lokal browser.`,
-      );
+      setNotice(`Data ${formValues.name.trim()} berhasil diperbarui.`);
     } else {
       const nextId =
         members.reduce((maxId, member) => Math.max(maxId, member.id), 0) + 1;
@@ -345,22 +354,18 @@ export default function AnggotaPage({
         phone: formValues.phone.trim(),
       };
       setMembers((current) => [newMember, ...current]);
-      setNotice(
-        `Anggota ${newMember.name} berhasil ditambahkan ke penyimpanan lokal browser.`,
-      );
+      setNotice(`Anggota ${newMember.name} berhasil ditambahkan.`);
     }
     closeModal();
     window.setTimeout(() => setNotice(""), 4000);
   };
 
   const confirmDelete = () => {
-    if (!memberToDelete) return;
+    if (!canManage || !memberToDelete) return;
     setMembers((current) =>
       current.filter((member) => member.id !== memberToDelete.id),
     );
-    setNotice(
-      `Data ${memberToDelete.name} dihapus dari penyimpanan lokal browser.`,
-    );
+    setNotice(`Data ${memberToDelete.name} berhasil dihapus.`);
     setMemberToDelete(null);
     window.setTimeout(() => setNotice(""), 4000);
   };
@@ -375,37 +380,51 @@ export default function AnggotaPage({
               Manajemen Organisasi
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Data Anggota
+              {canManage ? "Kelola Data Anggota" : "Data Anggota"}
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Kelola profil anggota IRM Baitussalam, perbarui informasi kontak,
-              dan pantau status keanggotaan dalam satu tempat.
+              {canManage
+                ? "Tambah, ubah, dan hapus data anggota IRM Baitussalam, serta pantau status keanggotaan dalam satu tempat."
+                : "Lihat daftar anggota IRM Baitussalam dan status keanggotaannya."}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => downloadCsv(filteredMembers)}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-            >
-              <Download size={16} /> <span>Ekspor CSV</span>
-            </button>
-            <button
-              type="button"
-              onClick={openCreateModal}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-100"
-            >
-              <Plus size={17} /> Tambah Anggota
-            </button>
-          </div>
+          {canManage && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => downloadCsv(filteredMembers)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+              >
+                <Download size={16} /> <span>Ekspor CSV</span>
+              </button>
+              <button
+                type="button"
+                onClick={openCreateModal}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-100"
+              >
+                <Plus size={17} /> Tambah Anggota
+              </button>
+            </div>
+          )}
         </div>
+
+        {!canManage && (
+          <div className="flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
+            <Lock size={16} className="mt-0.5 shrink-0" />
+            <span>
+              Anda hanya dapat melihat data. Pengelolaan anggota (tambah, ubah,
+              hapus) hanya tersedia untuk Admin.
+            </span>
+          </div>
+        )}
 
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900 sm:flex sm:items-center sm:gap-2">
           <AlertCircle size={16} className="mb-1 shrink-0 sm:mb-0" />
           <span>
             <strong>Mode prototipe:</strong> data di halaman ini masih contoh
-            dan hanya tersimpan selama halaman tidak dimuat ulang. Belum
-            terhubung ke backend Go atau PostgreSQL.
+            dan hanya tersimpan di browser ini (localStorage). Belum terhubung
+            ke backend Go atau PostgreSQL, dan tidak terhubung dengan akun yang
+            mendaftar lewat halaman daftar.
           </span>
         </div>
 
@@ -462,7 +481,7 @@ export default function AnggotaPage({
               </h2>
               <p className="mt-1 text-xs text-slate-500">
                 Menampilkan {filteredMembers.length} dari {members.length}{" "}
-                anggota contoh.
+                anggota.
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -589,9 +608,11 @@ export default function AnggotaPage({
                   <th scope="col" className="px-4 py-3.5">
                     Status
                   </th>
-                  <th scope="col" className="px-5 py-3.5 text-right">
-                    Aksi
-                  </th>
+                  {canManage && (
+                    <th scope="col" className="px-5 py-3.5 text-right">
+                      Aksi
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -641,28 +662,30 @@ export default function AnggotaPage({
                     <td className="px-4 py-4">
                       <StatusBadge status={member.status} />
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex justify-end gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(member)}
-                          aria-label={`Edit ${member.name}`}
-                          title="Edit data"
-                          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMemberToDelete(member)}
-                          aria-label={`Hapus ${member.name}`}
-                          title="Hapus data"
-                          className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+                    {canManage && (
+                      <td className="px-5 py-4">
+                        <div className="flex justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(member)}
+                            aria-label={`Edit ${member.name}`}
+                            title="Edit data"
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setMemberToDelete(member)}
+                            aria-label={`Hapus ${member.name}`}
+                            title="Hapus data"
+                            className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -709,7 +732,7 @@ export default function AnggotaPage({
         </section>
       </div>
 
-      {isModalOpen && (
+      {canManage && isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-5"
           onMouseDown={(event) => {
@@ -872,7 +895,7 @@ export default function AnggotaPage({
         </div>
       )}
 
-      {memberToDelete && (
+      {canManage && memberToDelete && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-[2px]">
           <section
             role="alertdialog"
@@ -894,7 +917,7 @@ export default function AnggotaPage({
               <strong className="font-semibold text-slate-800">
                 {memberToDelete.name}
               </strong>{" "}
-              akan dihapus dari data prototipe ini. Tindakan ini tidak dapat
+              akan dihapus dari daftar anggota. Tindakan ini tidak dapat
               dibatalkan setelah dikonfirmasi.
             </p>
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row">

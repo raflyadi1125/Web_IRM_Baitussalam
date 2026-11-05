@@ -29,15 +29,13 @@ const rawPort = (process.env.PORT ?? "").trim();
 const parsedPort = rawPort.length > 0 ? Number(rawPort) : Number.NaN;
 const port =
   Number.isInteger(parsedPort) && parsedPort >= 0 && parsedPort <= 65535 ? parsedPort : 3001;
-serve({
-  fetch: app.fetch,
-  port,
-});
 
 if (process.env.NODE_ENV !== "production") {
-  await seed().catch((error: unknown) => {
-    console.error("Seed gagal:", error);
-  });
+  await seed()
+    .then(() => console.log("Seed selesai: 4 akun awal siap dipakai"))
+    .catch((error: unknown) => {
+      console.error("Seed gagal:", error);
+    });
 }
 
 serve({

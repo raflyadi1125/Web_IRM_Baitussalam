@@ -5,7 +5,7 @@ import { comparePassword, hashPassword } from '../../shared/utils/password';
 import { logAudit } from '../audit/audit.service';
 import type { LoginInput, RegisterInput } from './auth.validation';
 
-const publicFields = ['id', 'nama', 'email', 'role', 'aktif'] as const;
+const publicFields = ['id', 'nama', 'email', 'role', 'status'] as const;
 
 export const register = async (input: RegisterInput) => {
   const exists = await db.orm.public.User.where({ email: input.email }).first();
@@ -26,7 +26,10 @@ export const login = async (input: LoginInput) => {
   if (!user || !(await comparePassword(input.password, user.password))) {
     throw new AppError('Email atau password salah', 401);
   }
-  if (!user.aktif) throw new AppError('Akun tidak aktif', 403);
+  if (user.status === 'PENDING') {
+    throw new AppError('Akun Anda masih menunggu persetujuan admin', 403);
+  }
+  if (user.status !== 'AKTIF') throw new AppError('Akun tidak aktif. Hubungi admin', 403);
 
   await logAudit(user.id, 'LOGIN', 'User', user.id);
   const { password: _pw, ...safe } = user;

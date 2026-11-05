@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const createPeriodeSchema = z.object({
-  nama: z.string().trim().min(3),
-  tahunMulai: z.coerce.number().int().min(2000),
-  tahunSelesai: z.coerce.number().int().min(2000),
+  nama: z.string().trim().min(3), // contoh: "2026/2027"
+  mulai: z.coerce.date(),
+  selesai: z.coerce.date(),
   aktif: z.boolean().default(false),
 });
 export const updatePeriodeSchema = createPeriodeSchema.partial();

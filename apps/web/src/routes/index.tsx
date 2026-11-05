@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate as useRouterNavigate,
+} from "react-router-dom";
 import Sidebar from "../components/SideBar";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import Topbar from "../components/TopBar";
 import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
 import type { NavKey } from "../types";
 import AdminRoutes from "./admin";
 import AnggotaRoutes from "./anggota";
@@ -15,7 +23,15 @@ import type { AppRole, RoleRouteProps } from "./types";
 export default function AppRoutes() {
   const { session, signOut } = useAuth();
 
-  if (!session) return <LoginPage />;
+  if (!session) {
+    return (
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
 
   return <AuthenticatedApp activeRole={session.role} onLogout={signOut} />;
 }
@@ -30,6 +46,13 @@ function AuthenticatedApp({ activeRole, onLogout }: AuthenticatedAppProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { theme } = useTheme();
+
+  // Setelah login, pastikan URL kembali ke "/" (mis. kalau login dari /register).
+  const location = useLocation();
+  const routerNavigate = useRouterNavigate();
+  useEffect(() => {
+    if (location.pathname !== "/") routerNavigate("/", { replace: true });
+  }, [location.pathname, routerNavigate]);
 
   const navigate = (page: NavKey) => {
     setActivePage(canRoleAccessPage(activeRole, page) ? page : "dashboard");
