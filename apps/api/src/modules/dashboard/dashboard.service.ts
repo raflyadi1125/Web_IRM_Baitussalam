@@ -1,19 +1,19 @@
-import { prisma } from '../../config/database';
+import { db } from '../../config/database';
 import { PERMISSIONS } from '../../shared/constants/permissions';
 import type { Role } from '../../shared/constants/roles';
 
 export const getSummary = async (role: Role) => {
   const [anggotaAktif, kegiatanGroup, mendatang, pengumuman, absensiGroup] = await Promise.all([
-    prisma.user.count({ where: { aktif: true } }),
-    prisma.kegiatan.groupBy({ by: ['status'], _count: { _all: true } }),
-    prisma.kegiatan.findMany({
+    db.user.count({ where: { aktif: true } }),
+    db.kegiatan.groupBy({ by: ['status'], _count: { _all: true } }),
+    db.kegiatan.findMany({
       where: { tanggalMulai: { gte: new Date() }, status: { not: 'BATAL' } },
       orderBy: { tanggalMulai: 'asc' },
       take: 5,
       select: { id: true, nama: true, tanggalMulai: true, lokasi: true },
     }),
-    prisma.pengumuman.findMany({ orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, judul: true, createdAt: true } }),
-    prisma.absensi.groupBy({ by: ['status'], _count: { _all: true } }),
+    db.pengumuman.findMany({ orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, judul: true, createdAt: true } }),
+    db.absensi.groupBy({ by: ['status'], _count: { _all: true } }),
   ]);
 
   const kegiatan: Record<string, number> = { DRAFT: 0, BERJALAN: 0, SELESAI: 0, BATAL: 0 };
@@ -34,9 +34,9 @@ export const getSummary = async (role: Role) => {
   // Data keuangan hanya untuk peran yang berwenang.
   if ((PERMISSIONS.keuangan as readonly Role[]).includes(role)) {
     const [masuk, keluar, iuranBelum] = await Promise.all([
-      prisma.transaksi.aggregate({ where: { tipe: 'PEMASUKAN' }, _sum: { jumlah: true } }),
-      prisma.transaksi.aggregate({ where: { tipe: 'PENGELUARAN' }, _sum: { jumlah: true } }),
-      prisma.iuran.count({ where: { status: 'BELUM' } }),
+      db.transaksi.aggregate({ where: { tipe: 'PEMASUKAN' }, _sum: { jumlah: true } }),
+      db.transaksi.aggregate({ where: { tipe: 'PENGELUARAN' }, _sum: { jumlah: true } }),
+      db.iuran.count({ where: { status: 'BELUM' } }),
     ]);
     const pemasukan = Number(masuk._sum.jumlah ?? 0);
     const pengeluaran = Number(keluar._sum.jumlah ?? 0);

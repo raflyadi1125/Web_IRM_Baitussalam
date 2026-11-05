@@ -1,2 +1,2 @@
-   import './env';
-   export { db } from 'database';
+import './env.ts';
+export { db } from 'database';

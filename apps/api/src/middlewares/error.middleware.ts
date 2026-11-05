@@ -1,7 +1,6 @@
 import type { ErrorRequestHandler } from 'express';
-import { Prisma } from 'database';
 import { ZodError } from 'zod';
-import { AppError } from '../shared/errors/app-error';
+import { AppError } from '../shared/errors/app-error.js';
 
 export const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
@@ -16,18 +15,19 @@ export const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(err.statusCode).json({ success: false, message: err.message, errors: err.details });
     return;
   }
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    const map: Record<string, [number, string]> = {
-      P2002: [409, 'Data sudah ada (duplikat)'],
-      P2003: [400, 'Relasi data tidak valid atau data masih dipakai'],
-      P2025: [404, 'Data tidak ditemukan'],
-    };
-    const hit = map[err.code];
-    if (hit) {
-      res.status(hit[0]).json({ success: false, message: hit[1] });
-      return;
-    }
+
+  // Error database dari driver pg (Postgres): kode SQLSTATE
+  const pgCode = err?.code ?? err?.cause?.code;
+  const pgMap: Record<string, [number, string]> = {
+    '23505': [409, 'Data sudah ada (duplikat)'],               // unique_violation
+    '23503': [400, 'Relasi data tidak valid atau data masih dipakai'], // foreign_key_violation
+  };
+  const hit = typeof pgCode === 'string' ? pgMap[pgCode] : undefined;
+  if (hit) {
+    res.status(hit[0]).json({ success: false, message: hit[1] });
+    return;
   }
+
   if (err?.type === 'entity.parse.failed') {
     res.status(400).json({ success: false, message: 'JSON tidak valid' });
     return;

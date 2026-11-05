@@ -1,4 +1,4 @@
-import { prisma } from '../../config/database';
+import { db } from '../../config/database';
 import { AppError } from '../../shared/errors/app-error';
 import { buildMeta } from '../../shared/utils/pagination';
 import { logAudit } from '../audit/audit.service';
@@ -10,15 +10,15 @@ export const list = async ({ status, periodeId, search, page, limit }: ListKegia
     ...(periodeId ? { periodeId } : {}),
     ...(search ? { nama: { contains: search, mode: 'insensitive' as const } } : {}),
   };
-  const [items, total] = await prisma.$transaction([
-    prisma.kegiatan.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { tanggalMulai: 'desc' } }),
-    prisma.kegiatan.count({ where }),
+  const [items, total] = await db.$transaction([
+    db.kegiatan.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { tanggalMulai: 'desc' } }),
+    db.kegiatan.count({ where }),
   ]);
   return { items, meta: buildMeta(page, limit, total) };
 };
 
 export const getById = async (id: number) => {
-  const item = await prisma.kegiatan.findUnique({
+  const item = await db.kegiatan.findUnique({
     where: { id },
     include: {
       periode: { select: { id: true, nama: true } },
@@ -30,18 +30,18 @@ export const getById = async (id: number) => {
 };
 
 export const create = async (input: CreateKegiatanInput, actorId: number) => {
-  const item = await prisma.kegiatan.create({ data: input });
+  const item = await db.kegiatan.create({ data: input });
   await logAudit(actorId, 'CREATE', 'Kegiatan', item.id, { nama: item.nama });
   return item;
 };
 
 export const update = async (id: number, input: UpdateKegiatanInput, actorId: number) => {
-  const item = await prisma.kegiatan.update({ where: { id }, data: input });
+  const item = await db.kegiatan.update({ where: { id }, data: input });
   await logAudit(actorId, 'UPDATE', 'Kegiatan', id, { fields: Object.keys(input) });
   return item;
 };
 
 export const remove = async (id: number, actorId: number) => {
-  await prisma.kegiatan.delete({ where: { id } });
+  await db.kegiatan.delete({ where: { id } });
   await logAudit(actorId, 'DELETE', 'Kegiatan', id);
 };

@@ -1,5 +1,5 @@
 import app from './app';
-import { prisma } from './config/database';
+import { db } from '../src/config/database';
 import { env } from './config/env';
 
 const server = app.listen(env.PORT, () => {
@@ -8,7 +8,7 @@ const server = app.listen(env.PORT, () => {
 
 const shutdown = async () => {
   server.close();
-  await prisma.$disconnect();
+  await db.$disconnect();
   process.exit(0);
 };
 process.on('SIGINT', shutdown);

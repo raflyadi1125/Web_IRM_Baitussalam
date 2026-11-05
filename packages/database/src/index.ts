@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { seed } from "./prisma/seed";
 
 import { listUsers } from "./prisma/users";
 
@@ -27,7 +28,18 @@ app.get("/users", async (c) => {
 const rawPort = (process.env.PORT ?? "").trim();
 const parsedPort = rawPort.length > 0 ? Number(rawPort) : Number.NaN;
 const port =
-  Number.isInteger(parsedPort) && parsedPort >= 0 && parsedPort <= 65535 ? parsedPort : 3000;
+  Number.isInteger(parsedPort) && parsedPort >= 0 && parsedPort <= 65535 ? parsedPort : 3001;
+serve({
+  fetch: app.fetch,
+  port,
+});
+
+if (process.env.NODE_ENV !== "production") {
+  await seed().catch((error: unknown) => {
+    console.error("Seed gagal:", error);
+  });
+}
+
 serve({
   fetch: app.fetch,
   port,

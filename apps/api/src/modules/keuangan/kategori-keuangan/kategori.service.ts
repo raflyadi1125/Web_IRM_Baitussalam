@@ -1,4 +1,4 @@
-import { prisma } from '../../../config/database';
+import { db } from '../../../config/database';
 
 export interface KategoriInput {
   nama: string;
@@ -6,9 +6,9 @@ export interface KategoriInput {
 }
 
 export const list = (tipe?: 'PEMASUKAN' | 'PENGELUARAN') =>
-  prisma.kategoriKeuangan.findMany({ where: tipe ? { tipe } : {}, orderBy: { nama: 'asc' } });
-export const create = (input: KategoriInput) => prisma.kategoriKeuangan.create({ data: input });
-export const update = (id: number, input: Partial<KategoriInput>) => prisma.kategoriKeuangan.update({ where: { id }, data: input });
+  db.kategoriKeuangan.findMany({ where: tipe ? { tipe } : {}, orderBy: { nama: 'asc' } });
+export const create = (input: KategoriInput) => db.kategoriKeuangan.create({ data: input });
+export const update = (id: number, input: Partial<KategoriInput>) => db.kategoriKeuangan.update({ where: { id }, data: input });
 export const remove = async (id: number) => {
-  await prisma.kategoriKeuangan.delete({ where: { id } });
+  await db.kategoriKeuangan.delete({ where: { id } });
 };
