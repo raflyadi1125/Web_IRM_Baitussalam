@@ -4,9 +4,11 @@ import { Menu } from "lucide-react";
 import AdminSidebar from "../components/AdminSidebar";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function AdminLayout() {
   const { activePage, onNavigate } = useRoleNavigation("admin");
+  const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Judul halaman diambil dari konfigurasi navigasi admin
@@ -15,7 +17,11 @@ export default function AdminLayout() {
       ?.label ?? "Dashboard";
 
   return (
-    <div className="app-shell layout-admin">
+    <div
+      className={`app-shell layout-admin ${
+        theme === "dark" ? "theme-dark" : "theme-light"
+      }`}
+    >
       <AdminSidebar
         activePage={activePage}
         isOpen={sidebarOpen}

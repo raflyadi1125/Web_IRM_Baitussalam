@@ -19,11 +19,14 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(readSession)
 
-  const signIn = useCallback(async (credentials: LoginCredentials, remember: boolean) => {
-    const nextSession = await login(credentials)
-    saveSession(nextSession, remember)
-    setSession(nextSession)
-  }, [])
+ const signIn = useCallback(async (credentials: LoginCredentials, remember: boolean) => {
+  console.log('1. mulai login')
+  const nextSession = await login(credentials)
+  console.log('2. respons login:', nextSession)
+  saveSession(nextSession, remember)
+  setSession(nextSession)
+  console.log('3. session tersimpan')
+}, [])
 
   const signOut = useCallback(() => {
     clearSession()

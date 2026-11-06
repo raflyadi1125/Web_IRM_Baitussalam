@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { AlertCircle, Eye, EyeOff, LoaderCircle, Lock, LogIn, Mail } from 'lucide-react'
 import ThemeToggle from '../../components/ThemeToggle'
 import { useAuth } from '../../contexts/AuthContext'
@@ -27,7 +27,7 @@ const inputClass = (hasError: boolean) =>
   }`
 
 export default function LoginPage() {
-  const { signIn } = useAuth()
+  const { session, signIn } = useAuth()
   const { theme } = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -48,14 +48,22 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      // Peran tidak dikirim: ditentukan oleh akun (dari backend), lalu AppRoutes
-      // menampilkan dashboard dan menu sesuai peran tersebut.
+      // Peran tidak dikirim: ditentukan oleh akun (dari backend).
+      // Setelah signIn sukses, session terisi dan redirect di bawah
+      // otomatis membawa user ke dashboard sesuai perannya.
       await signIn({ email, password }, remember)
     } catch (caught) {
       setError(caught instanceof LoginError ? caught.message : 'Terjadi kesalahan saat masuk. Silakan coba lagi.')
       setSubmitting(false)
     }
   }
+
+  // Sudah login -> pindah ke dashboard sesuai role.
+  // Sesuaikan dengan bentuk AuthSession (jika role ada langsung di session, pakai session?.role).
+  const role = session?.role
+if (role) {
+  return <Navigate to={`/${role}`} replace />
+}
 
   return (
     <div className={`app-shell ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
