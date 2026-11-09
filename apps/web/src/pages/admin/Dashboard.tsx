@@ -99,7 +99,7 @@ interface AdminDashboardProps {
   onAddCash?: () => void;
 }
 
-export default function AdminDashboard({
+export default function Dashboard({
   onAddActivity,
   onAddCash,
 }: AdminDashboardProps) {
@@ -107,6 +107,8 @@ export default function AdminDashboard({
   const filtered = AGENDA.filter(
     (a) => filter === "Semua" || a.category === filter
   );
+
+  console.log("Dashboard ter-render");
 
   return (
     <div className="space-y-8 bg-slate-50 px-11 py-10">

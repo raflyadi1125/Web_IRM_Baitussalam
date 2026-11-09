@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "../pages/admin/Dashboard";
 import Kegiatan from "../pages/admin/Kegiatan";
@@ -13,6 +13,7 @@ const AdminRoute = (): ReactElement => {
   return (
     <Routes>
       <Route index element={<Dashboard />} />
+      <Route path="dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="kegiatan" element={<Kegiatan />} />
       <Route path="keuangan" element={<Keuangan />} />
       <Route path="anggota" element={<DataAnggota />} />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import AdminSidebar from "../components/AdminSidebar";
+import AdminSidebar from "../components/admin/AdminSidebar";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 import { useTheme } from "../contexts/ThemeContext";

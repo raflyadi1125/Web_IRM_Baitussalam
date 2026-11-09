@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import AnggotaSidebar from "../components/AnggotaSidebar";
+import AnggotaSidebar from "../components/anggota/AnggotaSidebar";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 

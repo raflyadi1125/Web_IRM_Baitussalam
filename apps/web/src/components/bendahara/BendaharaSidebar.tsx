@@ -1,32 +1,32 @@
 import { useState } from "react";
-import { BellRing, ChevronLeft, ClipboardList, X } from "lucide-react";
+import { BellRing, ChevronLeft, Wallet, X } from "lucide-react";
 import {
   canRoleAccessPage,
   getNavigationForRole,
   ROLE_META,
-} from "../routes/config";
-import type { AppRole } from "../routes/types";
-import type { NavKey } from "../types";
+} from "../../routes/config";
+import type { AppRole } from "../../routes/types";
+import type { NavKey } from "../../types";
 
-// Sidebar ini khusus untuk role sekretaris, jadi role tidak dikirim lewat props.
-const SEKRETARIS_ROLE: AppRole = "sekretaris";
+// Sidebar ini khusus untuk role bendahara, jadi role tidak dikirim lewat props.
+const BENDAHARA_ROLE: AppRole = "bendahara";
 
-interface SekretarisSidebarProps {
+interface BendaharaSidebarProps {
   activePage: NavKey;
   isOpen: boolean;
   onNavigate: (page: NavKey) => void;
   onClose: () => void;
 }
 
-export default function SekretarisSidebar({
+export default function BendaharaSidebar({
   activePage,
   isOpen,
   onNavigate,
   onClose,
-}: SekretarisSidebarProps) {
+}: BendaharaSidebarProps) {
   const [logoFailed, setLogoFailed] = useState(false);
-  const sekretarisMeta = ROLE_META[SEKRETARIS_ROLE];
-  const navigationItems = getNavigationForRole(SEKRETARIS_ROLE);
+  const bendaharaMeta = ROLE_META[BENDAHARA_ROLE];
+  const navigationItems = getNavigationForRole(BENDAHARA_ROLE);
 
   const primaryItems = navigationItems.filter(
     (item) => item.section === "utama",
@@ -64,7 +64,7 @@ export default function SekretarisSidebar({
         />
       )}
       <aside
-        className={`sidebar sidebar-sekretaris ${isOpen ? "sidebar-open" : ""}`}
+        className={`sidebar sidebar-bendahara ${isOpen ? "sidebar-open" : ""}`}
       >
         <div className="sidebar-brand">
           <div
@@ -86,7 +86,7 @@ export default function SekretarisSidebar({
           </div>
           <div className="brand-copy">
             <span className="brand-title">IRM Baitussalam</span>
-            <span className="brand-subtitle">Panel Sekretaris</span>
+            <span className="brand-subtitle">Panel Bendahara</span>
           </div>
           <button
             className="sidebar-close lg:hidden"
@@ -99,28 +99,33 @@ export default function SekretarisSidebar({
 
         <div className="sidebar-community">
           <div className="community-icon">
-            <ClipboardList size={17} />
+            <Wallet size={17} />
           </div>
           <div>
-            <p className="community-title">Ruang {sekretarisMeta.label}</p>
+            <p className="community-title">Ruang {bendaharaMeta.label}</p>
             <p className="community-subtitle">
-              Administrasi, surat, dan dokumentasi
+              Kas, iuran, dan laporan keuangan
             </p>
           </div>
           <span className="online-dot" />
         </div>
 
-        <nav className="sidebar-nav" aria-label="Navigasi sekretaris">
-          <p className="nav-section-label">MENU SEKRETARIS</p>
-          {renderItems(primaryItems)}
+        <nav className="sidebar-nav" aria-label="Navigasi bendahara">
+          {/* Bagi bendahara, menu keuangan ditampilkan lebih dulu */}
           {financeItems.length > 0 && (
             <>
-              <p className="nav-section-label nav-section-spaced">
-                KEUANGAN & LAPORAN
-              </p>
+              <p className="nav-section-label">KEUANGAN & LAPORAN</p>
               {renderItems(financeItems)}
             </>
           )}
+          <p
+            className={`nav-section-label ${
+              financeItems.length > 0 ? "nav-section-spaced" : ""
+            }`}
+          >
+            MENU UTAMA
+          </p>
+          {renderItems(primaryItems)}
         </nav>
 
         <div className="sidebar-help">
@@ -129,12 +134,12 @@ export default function SekretarisSidebar({
           </div>
           <p className="help-title">Pengumuman</p>
           <p className="help-text">
-            Lihat dan sampaikan informasi kegiatan kepada anggota.
+            Lihat informasi terbaru terkait kegiatan dan keuangan organisasi.
           </p>
           <button
             onClick={() => {
               onNavigate(
-                canRoleAccessPage(SEKRETARIS_ROLE, "pengumuman")
+                canRoleAccessPage(BENDAHARA_ROLE, "pengumuman")
                   ? "pengumuman"
                   : "dashboard",
               );
@@ -147,12 +152,10 @@ export default function SekretarisSidebar({
         </div>
 
         <div className="sidebar-profile">
-          <div className="avatar avatar-sidebar">
-            {sekretarisMeta.initials}
-          </div>
+          <div className="avatar avatar-sidebar">{bendaharaMeta.initials}</div>
           <div className="profile-text">
-            <span className="profile-name">{sekretarisMeta.label} IRM</span>
-            <span className="profile-role">{sekretarisMeta.description}</span>
+            <span className="profile-name">{bendaharaMeta.label} IRM</span>
+            <span className="profile-role">{bendaharaMeta.description}</span>
           </div>
         </div>
       </aside>

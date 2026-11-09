@@ -4,9 +4,9 @@ import {
   canRoleAccessPage,
   getNavigationForRole,
   ROLE_META,
-} from "../routes/config";
-import type { AppRole } from "../routes/types";
-import type { NavKey } from "../types";
+} from "../../routes/config";
+import type { AppRole } from "../../routes/types";
+import type { NavKey } from "../../types";
 
 // Sidebar ini khusus untuk role anggota, jadi role tidak dikirim lewat props.
 const ANGGOTA_ROLE: AppRole = "anggota";

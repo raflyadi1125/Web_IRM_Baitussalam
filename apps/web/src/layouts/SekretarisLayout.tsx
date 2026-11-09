@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import SekretarisSidebar from "../components/SekretarisSidebar";
+import SekretarisSidebar from "../components/sekretaris/SekretarisSidebar";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 

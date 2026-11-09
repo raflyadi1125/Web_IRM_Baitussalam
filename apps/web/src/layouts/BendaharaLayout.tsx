@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
-import BendaharaSidebar from "../components/BendaharaSidebar";
+import BendaharaSidebar from "../components/bendahara/BendaharaSidebar";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 

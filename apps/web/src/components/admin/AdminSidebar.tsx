@@ -11,7 +11,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export type MenuKey =
   | "dashboard"
@@ -80,7 +80,7 @@ export default function AdminSidebar({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className={`fixed inset-0 z-30 bg-black/40 transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-30 bg-black/40 transition-opacity lg:hidden scrollbar-none ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />

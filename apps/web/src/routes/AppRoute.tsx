@@ -28,6 +28,7 @@ const AppRoute = (): ReactElement => {
       {/* Admin */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminRoute />} />
           <Route path="*" element={<AdminRoute />} />
         </Route>
       </Route>
