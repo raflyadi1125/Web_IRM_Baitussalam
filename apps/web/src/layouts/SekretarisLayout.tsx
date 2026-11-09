@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import SekretarisSidebar from "../components/sekretaris/SekretarisSidebar";
+import Header from "../components/Header";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 
@@ -9,13 +10,12 @@ export default function SekretarisLayout() {
   const { activePage, onNavigate } = useRoleNavigation("sekretaris");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Judul halaman diambil dari konfigurasi navigasi sekretaris
   const pageTitle =
     getNavigationForRole("sekretaris").find((item) => item.key === activePage)
       ?.label ?? "Dashboard";
 
   return (
-    <div className="app-shell layout-sekretaris">
+    <div className="app-shell layout-sekretaris min-h-screen bg-slate-50">
       <SekretarisSidebar
         activePage={activePage}
         isOpen={sidebarOpen}
@@ -23,22 +23,15 @@ export default function SekretarisLayout() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="app-main">
-        <header className="app-topbar">
-          <button
-            className="topbar-menu lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Buka menu"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="topbar-title">
-            <h1 className="page-title">{pageTitle}</h1>
-            <p className="page-subtitle">Panel Sekretaris IRM Baitussalam</p>
-          </div>
-        </header>
+      {/* lg:pl-72 = lebar sidebar, supaya konten mulai di sebelah kanan sidebar */}
+      <div className="app-main flex min-h-screen min-w-0 flex-col lg:pl-72">
+        <Header
+          title={pageTitle}
+          subtitle="Panel Admin IRM Baitussalam"
+          onOpenSidebar={() => setSidebarOpen(true)}
+        />
 
-        <main className="app-content">
+        <main className="app-content min-w-0 flex-1">
           <Outlet />
         </main>
       </div>

@@ -127,7 +127,7 @@ html[data-theme="dark"] {
 
 .app-shell.theme-dark .bg-white,
 .app-shell.theme-dark .bg-slate-50,
-.app-shell.theme-dark .bg-slate-50\\80,
+.app-shell.theme-dark .bg-slate-50\/80,
 .app-shell.theme-dark .bg-slate-100 {
   background-color: #111d2d;
 }
@@ -150,7 +150,7 @@ html[data-theme="dark"] {
   color: #91a3b9;
 }
 
-.app-shell.theme-dark .placeholder\\:text-slate-400::placeholder {
+.app-shell.theme-dark .placeholder\:text-slate-400::placeholder {
   color: #71849b;
 }
 
@@ -159,7 +159,7 @@ html[data-theme="dark"] {
 }
 
 .app-shell.theme-dark .bg-emerald-50,
-.app-shell.theme-dark .bg-emerald-50\\30 {
+.app-shell.theme-dark .bg-emerald-50\/30 {
   background-color: #17372f;
 }
 
@@ -173,12 +173,12 @@ html[data-theme="dark"] {
   color: #9ee7c3;
 }
 
-.app-shell.theme-dark .hover\\:bg-slate-50:hover,
-.app-shell.theme-dark .hover\\:bg-emerald-50:hover {
+.app-shell.theme-dark .hover\:bg-slate-50:hover,
+.app-shell.theme-dark .hover\:bg-emerald-50:hover {
   background-color: #1a2a40;
 }
 
-.app-shell.theme-dark .hover\\:text-slate-700:hover {
+.app-shell.theme-dark .hover\:text-slate-700:hover {
   color: #edf5ff;
 }
 
@@ -186,11 +186,11 @@ html[data-theme="dark"] {
   background-color: #347a64;
 }
 
-.app-shell.theme-dark .hover\\:bg-emerald-900:hover {
+.app-shell.theme-dark .hover\:bg-emerald-900:hover {
   background-color: #3a876f;
 }
 
-.app-shell.theme-dark .focus-within\\:bg-white:focus-within {
+.app-shell.theme-dark .focus-within\:bg-white:focus-within {
   background-color: #111d2d;
 }
 
@@ -234,7 +234,7 @@ html[data-theme="dark"] {
   color: #edf5ff;
 }
 
-.app-shell.theme-dark .fixed.inset-0.bg-slate-950\\40 {
+.app-shell.theme-dark .fixed.inset-0.bg-slate-950\/40 {
   background: #020617c9;
 }
 
@@ -631,6 +631,8 @@ input:focus-visible {
   border: 0;
 }
 
+/* Layout lama (sidebar fixed). Untuk AdminLayout lihat override
+   ".app-main > .app-content" di bagian paling bawah file ini. */
 .app-content {
   min-height: 100vh;
   margin-left: 256px;
@@ -2256,47 +2258,47 @@ input:focus-visible {
 }
 
 @media (min-width: 1500px) {
-    .dashboard-page {
+  .dashboard-page {
     padding-left: 42px;
     padding-right: 42px;
   }
 
-    .panel {
+  .panel {
     padding: 23px;
   }
 
-    .community-banner {
+  .community-banner {
     min-height: 224px;
   }
 }
 
 @media (max-width: 1250px) {
-    .topbar {
+  .topbar {
     padding: 0 24px;
   }
   .dashboard-page {
     padding: 25px 24px 20px;
   }
 
-    .topbar-right {
+  .topbar-right {
     gap: 13px;
   }
   .topbar-date {
     display: none;
   }
 
-    .stat-card {
+  .stat-card {
     padding: 15px 13px;
   }
   .stat-label {
     font-size: 9.5px;
   }
 
-    .panel {
+  .panel {
     padding: 18px;
   }
 
-    .banner-copy {
+  .banner-copy {
     width: 60%;
     padding: 26px;
   }
@@ -2309,7 +2311,7 @@ input:focus-visible {
 }
 
 @media (max-width: 1020px) {
-    .sidebar {
+  .sidebar {
     transform: translateX(-100%);
     transition: transform 0.24s ease;
     box-shadow: 15px 0 35px #09182820;
@@ -2318,7 +2320,7 @@ input:focus-visible {
     transform: translateX(0);
   }
 
-    .app-content {
+  .app-content {
     margin-left: 0;
   }
   .topbar {
@@ -2336,13 +2338,13 @@ input:focus-visible {
     margin-right: 12px;
   }
 
-    .dashboard-page {
+  .dashboard-page {
     padding: 25px;
   }
 }
 
 @media (max-width: 760px) {
-    .topbar {
+  .topbar {
     height: 64px;
     padding: 0 17px;
   }
@@ -2368,11 +2370,11 @@ input:focus-visible {
     height: 32px;
   }
 
-    .mobile-page-label {
+  .mobile-page-label {
     display: none;
   }
 
-    .dashboard-page {
+  .dashboard-page {
     padding: 24px 17px 18px;
   }
   .welcome-row {
@@ -2394,7 +2396,7 @@ input:focus-visible {
     padding: 10px 12px;
   }
 
-    .community-banner {
+  .community-banner {
     min-height: 260px;
   }
   .banner-copy {
@@ -2453,7 +2455,7 @@ input:focus-visible {
     display: none;
   }
 
-    .stats-grid {
+  .stats-grid {
     margin-bottom: 15px;
   }
   .stat-card {
@@ -2474,7 +2476,7 @@ input:focus-visible {
     font-size: 9px;
   }
 
-    .dashboard-main-column,
+  .dashboard-main-column,
   .dashboard-side-column {
     gap: 15px;
   }
@@ -2509,19 +2511,19 @@ input:focus-visible {
     width: min(27px, 80%);
   }
 
-    .quote-card {
+  .quote-card {
     min-height: 137px;
   }
   .quote-card p {
     max-width: 280px;
   }
 
-    .dashboard-footer {
+  .dashboard-footer {
     padding-top: 19px;
     font-size: 8px;
   }
 
-    .module-placeholder-page {
+  .module-placeholder-page {
     padding: 22px 17px;
   }
   .module-placeholder-card {
@@ -2540,7 +2542,7 @@ input:focus-visible {
 }
 
 @media (max-width: 420px) {
-    .search-box {
+  .search-box {
     width: 40vw;
   }
   .topbar-right {
@@ -2555,7 +2557,7 @@ input:focus-visible {
     height: 30px;
   }
 
-    .welcome-row h1 {
+  .welcome-row h1 {
     font-size: 22px;
   }
   .preview-pill {
@@ -2566,7 +2568,7 @@ input:focus-visible {
     font-size: 10px;
   }
 
-    .banner-copy h2 {
+  .banner-copy h2 {
     font-size: 23px;
   }
   .banner-copy p {
@@ -2585,7 +2587,7 @@ input:focus-visible {
     display: none;
   }
 
-    .stat-card {
+  .stat-card {
     padding: 12px 10px;
   }
   .stat-value {
@@ -2598,7 +2600,7 @@ input:focus-visible {
     font-size: 9px;
   }
 
-    .activity-date {
+  .activity-date {
     width: 36px;
     height: 42px;
     flex-basis: 36px;
@@ -2613,7 +2615,7 @@ input:focus-visible {
     gap: 4px;
   }
 
-    .notification-popover {
+  .notification-popover {
     right: -47px;
     width: 275px;
   }
@@ -3029,6 +3031,10 @@ input:focus-visible {
   border-color: #475569;
 }
 
+/* =========================================================
+   ADMIN LAYOUT (AdminLayout.tsx)
+   ========================================================= */
+
 .app-shell {
   display: flex;
   min-height: 100vh;
@@ -3042,6 +3048,9 @@ input:focus-visible {
 }
 
 .app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3050,7 +3059,55 @@ input:focus-visible {
   border-bottom: 1px solid #e2e8f0;
 }
 
-.page-title { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
-.page-subtitle { font-size: 0.8rem; color: #64748b; }
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.page-subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+}
 
-.app-content { flex: 1; }
+.app-content {
+  flex: 1;
+}
+
+/* FIX: hilangkan margin-left 256px warisan layout lama.
+   Di AdminLayout sidebar sudah berada di samping .app-main,
+   jadi margin ini membuat ruang kosong di kiri dan scroll horizontal. */
+.app-main > .app-content {
+  margin-left: 0;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Tombol menu mobile di topbar */
+.topbar-menu {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #475569;
+}
+
+/* Dark mode untuk topbar AdminLayout */
+.app-shell.theme-dark .app-topbar {
+  background: #111d2d;
+  border-bottom-color: #26354a;
+}
+.app-shell.theme-dark .page-title {
+  color: #edf5ff;
+}
+.app-shell.theme-dark .page-subtitle {
+  color: #91a3b9;
+}
+.app-shell.theme-dark .topbar-menu {
+  background: #111d2d;
+  border-color: #26354a;
+  color: #dbe5f1;
+}

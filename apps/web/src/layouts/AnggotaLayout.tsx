@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import AnggotaSidebar from "../components/anggota/AnggotaSidebar";
+import Header from "../components/Header";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 
@@ -15,7 +16,7 @@ export default function AnggotaLayout() {
       ?.label ?? "Dashboard";
 
   return (
-    <div className="app-shell layout-anggota">
+    <div className="app-shell layout-anggota min-h-screen bg-slate-50">
       <AnggotaSidebar
         activePage={activePage}
         isOpen={sidebarOpen}
@@ -23,22 +24,18 @@ export default function AnggotaLayout() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="app-main">
-        <header className="app-topbar">
-          <button
-            className="topbar-menu lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Buka menu"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="topbar-title">
-            <h1 className="page-title">{pageTitle}</h1>
-            <p className="page-subtitle">Portal Anggota IRM Baitussalam</p>
-          </div>
-        </header>
+      {/*
+        lg:pl-72 = lebar sidebar (w-72 / 18rem).
+        Kalau sidebar Anda w-80, ganti jadi lg:pl-80 (dan seterusnya).
+      */}
+      <div className="app-main flex min-h-screen min-w-0 flex-col lg:pl-72">
+        <Header
+          title={pageTitle}
+          subtitle="Panel Admin IRM Baitussalam"
+          onOpenSidebar={() => setSidebarOpen(true)}
+        />
 
-        <main className="app-content">
+        <main className="app-content min-w-0 flex-1">
           <Outlet />
         </main>
       </div>

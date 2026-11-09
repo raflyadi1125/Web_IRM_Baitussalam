@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Menu } from "lucide-react";
 import AdminSidebar from "../components/admin/AdminSidebar";
+import Header from "../components/Header";
 import { useRoleNavigation } from "../hooks/useRoleNavigation";
 import { getNavigationForRole } from "../routes/config";
 import { useTheme } from "../contexts/ThemeContext";
@@ -30,19 +30,11 @@ export default function AdminLayout() {
       />
 
       <div className="app-main">
-        <header className="app-topbar">
-          <button
-            className="topbar-menu lg:hidden"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Buka menu"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="topbar-title">
-            <h1 className="page-title">{pageTitle}</h1>
-            <p className="page-subtitle">Panel Admin IRM Baitussalam</p>
-          </div>
-        </header>
+        <Header
+          title={pageTitle}
+          subtitle="Panel Admin IRM Baitussalam"
+          onOpenSidebar={() => setSidebarOpen(true)}
+        />
 
         <main className="app-content">
           <Outlet />
