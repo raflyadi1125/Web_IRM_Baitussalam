@@ -101,7 +101,7 @@ export default function RegisterPage() {
       }
 
   const inputClass = (hasError: boolean) =>
-    `h-11 w-full rounded-full border pl-11 pr-4 text-sm outline-none transition focus:ring-2 ${c.input} ${
+    `box-border h-11 w-full min-w-0 rounded-full border pl-11 pr-4 text-sm outline-none transition focus:ring-2 ${c.input} ${
       hasError ? c.inputError : ''
     }`
 
@@ -122,19 +122,20 @@ export default function RegisterPage() {
   const errorClass = `mt-1.5 text-xs ${c.fieldError}`
 
   return (
-    <div className={`app-shell ${isDark ? 'theme-dark' : 'theme-light'}`}>
-      <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className={`app-shell w-full max-w-full overflow-x-hidden ${isDark ? 'theme-dark' : 'theme-light'}`}>
+      {/* grid-cols-1 + minmax(0, ...) mencegah kolom melebar melebihi layar sehingga sisi kanan terpotong */}
+      <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         <BrandPanel />
 
-        <div className={`relative flex flex-col ${c.page}`}>
+        <div className={`relative flex min-h-screen min-w-0 flex-col ${c.page}`}>
           <header className="relative flex items-center gap-3 overflow-hidden bg-gradient-to-br from-[#1d2a16] via-[#121a0e] to-[#0c0f0b] px-5 py-4 text-white lg:hidden">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -right-10 -top-16 h-40 w-40 rounded-full bg-lime-300/10 blur-3xl"
             />
             <BrandLogo className="relative h-10 w-10" />
-            <div className="relative">
-              <p className="text-sm font-bold leading-tight">IRM Baitussalam</p>
+            <div className="relative min-w-0">
+              <p className="truncate text-sm font-bold leading-tight">IRM Baitussalam</p>
               <p className="text-[11px] text-white/60">Sistem Informasi</p>
             </div>
           </header>
@@ -143,8 +144,8 @@ export default function RegisterPage() {
             <ThemeToggle />
           </div>
 
-          <main className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
-            <div className="w-full max-w-md">
+          <main className="flex min-w-0 flex-1 items-center justify-center px-5 py-10 sm:px-8">
+            <div className="w-full min-w-0 max-w-md">
               <span
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium ${c.pill}`}
               >
@@ -164,7 +165,7 @@ export default function RegisterPage() {
                     className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs leading-5 ${c.success}`}
                   >
                     <CheckCircle2 size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-                    <span>
+                    <span className="min-w-0 break-words">
                       Pendaftaran berhasil. Jika akun perlu persetujuan, tunggu konfirmasi admin sebelum masuk.
                     </span>
                   </div>
@@ -176,8 +177,8 @@ export default function RegisterPage() {
                   </Link>
                 </div>
               ) : (
-                <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
-                  <div>
+                <form className="mt-6 w-full min-w-0 space-y-4" onSubmit={handleSubmit} noValidate>
+                  <div className="min-w-0">
                     <label htmlFor="register-nama" className={labelClass}>
                       Nama lengkap
                     </label>
@@ -197,7 +198,7 @@ export default function RegisterPage() {
                     {fieldErrors.nama && <p className={errorClass}>{fieldErrors.nama}</p>}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label htmlFor="register-email" className={labelClass}>
                       Email
                     </label>
@@ -217,7 +218,7 @@ export default function RegisterPage() {
                     {fieldErrors.email && <p className={errorClass}>{fieldErrors.email}</p>}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label htmlFor="register-password" className={labelClass}>
                       Kata sandi
                     </label>
@@ -231,14 +232,14 @@ export default function RegisterPage() {
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         aria-invalid={Boolean(fieldErrors.password)}
-                        className={`${inputClass(Boolean(fieldErrors.password))} pr-12`}
+                        className={`${inputClass(Boolean(fieldErrors.password))} !pr-12`}
                       />
                       {passwordToggle}
                     </div>
                     {fieldErrors.password && <p className={errorClass}>{fieldErrors.password}</p>}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label htmlFor="register-confirm" className={labelClass}>
                       Ulangi kata sandi
                     </label>
@@ -264,7 +265,7 @@ export default function RegisterPage() {
                       className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs leading-5 ${c.alert}`}
                     >
                       <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-                      <span>{error}</span>
+                      <span className="min-w-0 break-words">{error}</span>
                     </div>
                   )}
 

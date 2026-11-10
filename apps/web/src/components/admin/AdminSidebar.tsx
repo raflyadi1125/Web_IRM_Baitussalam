@@ -22,7 +22,8 @@ export type MenuKey =
   | "kegiatan"
   | "keuangan"
   | "laporan"
-  | "pengumuman";
+  | "pengumuman"
+  | "pengaturan";
 
 interface MenuItem {
   key: MenuKey;
@@ -50,7 +51,6 @@ interface AdminSidebarProps {
   onClose?: () => void;
   /** Ganti tema terang/gelap */
   onToggleTheme?: () => void;
-  onOpenSettings?: () => void;
 }
 
 export default function AdminSidebar({
@@ -59,7 +59,6 @@ export default function AdminSidebar({
   onNavigate,
   onClose,
   onToggleTheme,
-  onOpenSettings,
 }: AdminSidebarProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -68,6 +67,8 @@ export default function AdminSidebar({
     onNavigate?.(key);
     onClose?.(); // tutup drawer setelah pilih menu (layar kecil)
   };
+
+  const isSettingsActive = activePage === "pengaturan";
 
   // Token warna sesuai tema
   const c = isDark
@@ -165,9 +166,10 @@ export default function AdminSidebar({
 
           <button
             type="button"
-            onClick={onOpenSettings}
+            onClick={() => handleNavigate("pengaturan")}
             aria-label="Pengaturan"
-            className={`${base} ${c.idle}`}
+            aria-current={isSettingsActive ? "page" : undefined}
+            className={`${base} ${isSettingsActive ? active : c.idle}`}
           >
             <Settings className="h-[18px] w-[18px]" />
             {tooltip("Pengaturan")}

@@ -158,6 +158,20 @@ export default function Header({
     navigate("/login", { replace: true });
   };
 
+  // Profil Saya: buka /admin/profil, /anggota/profil, dst. sesuai role
+  const handleProfile = () => {
+    setOpenMenu(null);
+    if (onProfile) onProfile();
+    else navigate(`/${session?.role ?? "anggota"}/profil`);
+  };
+
+  // Pengaturan: buka /admin/pengaturan, /anggota/pengaturan, dst. sesuai role
+  const handleSettings = () => {
+    setOpenMenu(null);
+    if (onSettings) onSettings();
+    else navigate(`/${session?.role ?? "anggota"}/pengaturan`);
+  };
+
   // Sinkronkan jika data notifikasi dari luar berubah
   useEffect(() => {
     setNotifications(notificationsProp);
@@ -448,10 +462,10 @@ export default function Header({
               </div>
 
               <div className="py-1.5">
-                <button role="menuitem" type="button" onClick={run(onProfile)} className={menuItem}>
+                <button role="menuitem" type="button" onClick={handleProfile} className={menuItem}>
                   <User className={`h-4 w-4 ${c.faint}`} /> Profil Saya
                 </button>
-                <button role="menuitem" type="button" onClick={run(onSettings)} className={menuItem}>
+                <button role="menuitem" type="button" onClick={handleSettings} className={menuItem}>
                   <Settings className={`h-4 w-4 ${c.faint}`} /> Pengaturan
                 </button>
               </div>

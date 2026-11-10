@@ -15,6 +15,8 @@ import SekretarisRoute from "./SekretarisRoute";
 import BendaharaRoute from "./BendaharaRoute";
 import AnggotaRoute from "./AnggotaRoute";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ProfilePage from "../components/Profile";
+import SettingsPage from "../components/Settings";
 
 const AppRoute = (): ReactElement => {
   return (
@@ -29,6 +31,8 @@ const AppRoute = (): ReactElement => {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminRoute />} />
+          <Route path="profil" element={<ProfilePage />} />
+          <Route path="pengaturan" element={<SettingsPage />} />
           <Route path="*" element={<AdminRoute />} />
         </Route>
       </Route>
@@ -36,6 +40,9 @@ const AppRoute = (): ReactElement => {
       {/* Sekretaris */}
       <Route element={<ProtectedRoute allowedRoles={["sekretaris"]} />}>
         <Route path="/sekretaris" element={<SekretarisLayout />}>
+          <Route index element={<SekretarisRoute />} />
+          <Route path="profil" element={<ProfilePage />} />
+          <Route path="pengaturan" element={<SettingsPage />} />
           <Route path="*" element={<SekretarisRoute />} />
         </Route>
       </Route>
@@ -43,6 +50,9 @@ const AppRoute = (): ReactElement => {
       {/* Bendahara */}
       <Route element={<ProtectedRoute allowedRoles={["bendahara"]} />}>
         <Route path="/bendahara" element={<BendaharaLayout />}>
+          <Route index element={<BendaharaRoute />} />
+          <Route path="profil" element={<ProfilePage />} />
+          <Route path="pengaturan" element={<SettingsPage />} />
           <Route path="*" element={<BendaharaRoute />} />
         </Route>
       </Route>
@@ -50,6 +60,9 @@ const AppRoute = (): ReactElement => {
       {/* Anggota */}
       <Route element={<ProtectedRoute allowedRoles={["anggota"]} />}>
         <Route path="/anggota" element={<AnggotaLayout />}>
+          <Route index element={<AnggotaRoute />} />
+          <Route path="profil" element={<ProfilePage />} />
+          <Route path="pengaturan" element={<SettingsPage />} />
           <Route path="*" element={<AnggotaRoute />} />
         </Route>
       </Route>
