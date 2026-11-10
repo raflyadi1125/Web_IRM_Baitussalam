@@ -1,4 +1,20 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  CalendarCheck,
+  CalendarX,
+  Download,
+  Printer,
+  UserMinus,
+  UserPlus,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
+// NOTE: sesuaikan path import ini dengan lokasi file dashboard Anda
+import { useTheme } from "../../contexts/ThemeContext";
 
 // ===================== Types =====================
 type TabLaporan = "Keuangan" | "Kegiatan" | "Keanggotaan";
@@ -75,7 +91,91 @@ const DATA_LAPORAN: Record<string, DataTahunan> = {
 };
 
 const TAHUN = Object.keys(DATA_LAPORAN).sort((a, b) => Number(b) - Number(a));
-const TABS: TabLaporan[] = ["Keuangan", "Kegiatan", "Keanggotaan"];
+const TABS: readonly TabLaporan[] = ["Keuangan", "Kegiatan", "Keanggotaan"];
+
+// ===================== Token warna sesuai tema =====================
+// Pola yang sama dengan AdminDashboard: gelap = kartu kaca + aksen lime-300,
+// terang = kartu putih + aksen lime-400/700.
+// Varian `print:` menjaga hasil cetak tetap terbaca (latar gelap tidak ikut tercetak).
+const DARK = {
+  panel:
+    "rounded-3xl border border-white/10 bg-white/[0.04] p-6 print:border-slate-300 print:bg-white",
+  title: "text-white print:text-slate-900",
+  text: "text-white/70 print:text-slate-700",
+  muted: "text-white/45 print:text-slate-500",
+  divider: "divide-white/10 print:divide-slate-200",
+  line: "border-white/10 print:border-slate-300",
+  iconWrap: "border-white/10 bg-white/[0.06] text-lime-300 print:text-lime-700",
+  segment: "border-white/10 bg-white/[0.04]",
+  segActive: "bg-lime-300 text-[#10150c]",
+  segIdle: "text-white/60 hover:text-white",
+  tableHead: "bg-black/20 text-white/45 print:bg-slate-100 print:text-slate-600",
+  tableFoot: "bg-white/[0.03] print:bg-slate-50",
+  rowHover: "hover:bg-white/[0.03]",
+  input:
+    "border-white/10 bg-white/[0.04] text-white placeholder:text-white/35 focus:border-lime-300/50 focus:ring-2 focus:ring-lime-300/20 [color-scheme:dark]",
+  btnPrimary:
+    "bg-lime-300 text-[#10150c] shadow-[0_0_24px_rgba(190,242,100,0.25)] hover:bg-lime-200",
+  btnGhost:
+    "border-white/15 bg-white/[0.06] text-white hover:border-lime-300/40 hover:text-lime-300",
+  barIn: "bg-gradient-to-t from-lime-300/5 to-lime-300/60 border-t-2 border-lime-300",
+  barOut: "bg-gradient-to-t from-red-400/5 to-red-400/50 border-t-2 border-red-300",
+  legendIn: "bg-lime-300",
+  legendOut: "bg-red-300",
+  maxLine: "border-lime-300/60",
+  maxChip: "border-lime-300/40 bg-[#12170e] text-lime-300 print:bg-white print:text-lime-700",
+  tone: {
+    lime: "bg-lime-300/15 text-lime-300 print:text-lime-800",
+    red: "bg-red-400/15 text-red-300 print:text-red-700",
+  },
+  toneText: {
+    lime: "text-lime-300 print:text-lime-700",
+    red: "text-red-300 print:text-red-600",
+  },
+};
+
+const LIGHT: typeof DARK = {
+  panel: "rounded-3xl border border-slate-200 bg-white p-6 shadow-sm",
+  title: "text-slate-900",
+  text: "text-slate-600",
+  muted: "text-slate-400",
+  divider: "divide-slate-100",
+  line: "border-slate-200",
+  iconWrap: "border-lime-200 bg-lime-50 text-lime-700",
+  segment: "border-slate-200 bg-slate-50",
+  segActive: "bg-lime-400 text-[#10150c]",
+  segIdle: "text-slate-500 hover:text-slate-800",
+  tableHead: "bg-slate-50 text-slate-500",
+  tableFoot: "bg-slate-50",
+  rowHover: "hover:bg-slate-50",
+  input:
+    "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-lime-500 focus:ring-2 focus:ring-lime-200 [color-scheme:light]",
+  btnPrimary: "bg-lime-400 text-[#10150c] shadow-sm hover:bg-lime-300",
+  btnGhost:
+    "border-slate-200 bg-white text-slate-700 hover:border-lime-400 hover:text-lime-700",
+  barIn: "bg-gradient-to-t from-lime-100 to-lime-400 border-t-2 border-lime-600",
+  barOut: "bg-gradient-to-t from-red-100 to-red-400 border-t-2 border-red-500",
+  legendIn: "bg-lime-500",
+  legendOut: "bg-red-400",
+  maxLine: "border-lime-500/70",
+  maxChip: "border-lime-300 bg-white text-lime-700",
+  tone: {
+    lime: "bg-lime-100 text-lime-800",
+    red: "bg-red-100 text-red-600",
+  },
+  toneText: {
+    lime: "text-lime-700",
+    red: "text-red-500",
+  },
+};
+
+const useC = () => {
+  const { theme } = useTheme();
+  return theme === "dark" ? DARK : LIGHT;
+};
+
+const btnBase =
+  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors";
 
 // ===================== Helpers =====================
 const formatRupiah = (n: number): string =>
@@ -85,7 +185,18 @@ const formatRupiah = (n: number): string =>
     maximumFractionDigits: 0,
   }).format(n);
 
+const formatRupiahRingkas = (n: number): string => {
+  const f = (v: number, satuan: string) =>
+    `Rp ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 }).format(v)} ${satuan}`;
+  if (n >= 1e9) return f(n / 1e9, "M");
+  if (n >= 1e6) return f(n / 1e6, "jt");
+  if (n >= 1e3) return f(n / 1e3, "rb");
+  return `Rp ${n}`;
+};
+
 const sum = (arr: number[]): number => arr.reduce((a, b) => a + b, 0);
+const singkat = (bulan: string): string => bulan.slice(0, 3);
+const angka = (n: number): string => String(n);
 
 const unduhCSV = (namaFile: string, header: string[], baris: (string | number)[][]) => {
   const isi = [header, ...baris]
@@ -101,23 +212,282 @@ const unduhCSV = (namaFile: string, header: string[], baris: (string | number)[]
 };
 
 // ===================== Sub-komponen =====================
-interface KartuProps {
+interface StatCardProps {
   label: string;
-  nilai: string;
-  warna?: string;
+  value: string;
+  sub?: string;
+  badge?: string;
+  badgeTone?: "lime" | "red";
+  icon: LucideIcon;
+  /** Kartu lime penuh, seperti kartu "My Card" pada gambar referensi. */
+  accent?: boolean;
 }
 
-function Kartu({ label, nilai, warna = "text-gray-800" }: KartuProps) {
+function StatCard({
+  label,
+  value,
+  sub,
+  badge,
+  badgeTone = "lime",
+  icon: Icon,
+  accent = false,
+}: StatCardProps) {
+  const c = useC();
+  const shell = accent
+    ? "rounded-3xl border border-lime-300/60 bg-lime-300 p-6 text-[#10150c] shadow-[0_0_32px_rgba(190,242,100,0.18)]"
+    : c.panel;
+  const labelCls = accent ? "text-[#10150c]/70" : c.text;
+  const iconCls = accent ? "border-[#10150c]/15 bg-[#10150c]/10 text-[#10150c]" : c.iconWrap;
+  const valueCls = accent ? "text-[#10150c]" : c.title;
+  const badgeCls = accent ? "bg-[#10150c]/10 text-[#10150c]" : c.tone[badgeTone];
+  const subCls = accent ? "text-[#10150c]/65" : c.muted;
+
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-xl font-bold ${warna}`}>{nilai}</p>
+    <div className={`${shell} min-w-0`}>
+      <div className="flex items-start justify-between gap-3">
+        <p className={`text-sm font-medium ${labelCls}`}>{label}</p>
+        <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border ${iconCls}`}>
+          <Icon className="h-5 w-5" />
+        </span>
+      </div>
+
+      <p className={`mt-4 whitespace-nowrap text-2xl font-semibold tracking-tight sm:text-3xl ${valueCls}`}>
+        {value}
+      </p>
+
+      {(badge || sub) && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+          {badge && (
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeCls}`}>{badge}</span>
+          )}
+          {sub && <p className={`min-w-0 text-xs ${subCls}`}>{sub}</p>}
+        </div>
+      )}
     </div>
+  );
+}
+
+interface SegmentProps<T extends string> {
+  options: readonly T[];
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+}
+
+function Segment<T extends string>({ options, value, onChange, label }: SegmentProps<T>) {
+  const c = useC();
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className={`flex max-w-full overflow-x-auto rounded-full border p-1 ${c.segment}`}
+    >
+      {options.map((o) => (
+        <button
+          key={o}
+          type="button"
+          aria-pressed={value === o}
+          onClick={() => onChange(o)}
+          className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            value === o ? c.segActive : c.segIdle
+          }`}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Grafik batang bergaya "Cashflow" pada gambar referensi
+interface BarSeries {
+  name: string;
+  values: number[];
+  tone: "in" | "out";
+}
+
+interface BarChartProps {
+  labels: string[];
+  series: BarSeries[];
+  format: (n: number) => string;
+  ariaLabel: string;
+}
+
+function BarChart({ labels, series, format, ariaLabel }: BarChartProps) {
+  const c = useC();
+  const max = Math.max(1, ...series.flatMap((s) => s.values));
+  const barCls = { in: c.barIn, out: c.barOut };
+
+  return (
+    <div
+      role="img"
+      aria-label={ariaLabel}
+      className="print:[-webkit-print-color-adjust:exact] print:[print-color-adjust:exact]"
+    >
+      <div className="relative mt-6 h-48">
+        {[0, 25, 50, 75].map((p) => (
+          <div
+            key={p}
+            className={`absolute inset-x-0 border-t ${c.line}`}
+            style={{ bottom: `${p}%` }}
+          />
+        ))}
+        <div className={`absolute inset-x-0 top-0 border-t border-dashed ${c.maxLine}`} />
+        <span
+          className={`absolute left-0 top-0 -translate-y-1/2 rounded-md border px-2 py-0.5 text-[11px] font-medium ${c.maxChip}`}
+        >
+          {format(max)}
+        </span>
+
+        <div className="absolute inset-0 flex items-end gap-2 px-1 sm:gap-4">
+          {labels.map((label, i) => (
+            <div key={i} className="flex h-full min-w-0 flex-1 items-end justify-center gap-1">
+              {series.map((s) =>
+                s.values[i] > 0 ? (
+                  <div
+                    key={s.name}
+                    className={`w-full max-w-[26px] rounded-t-md ${barCls[s.tone]}`}
+                    style={{ height: `${(s.values[i] / max) * 100}%` }}
+                    title={`${s.name} ${label}: ${format(s.values[i])}`}
+                  />
+                ) : null,
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-2 flex gap-2 px-1 sm:gap-4">
+        {labels.map((label, i) => (
+          <span key={i} className={`min-w-0 flex-1 truncate text-center text-xs ${c.muted}`}>
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChartLegend({ series }: { series: BarSeries[] }) {
+  const c = useC();
+  return (
+    <div className={`flex flex-wrap gap-4 text-xs ${c.text}`}>
+      {series.map((s) => (
+        <span key={s.name} className="flex items-center gap-1.5">
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${s.tone === "in" ? c.legendIn : c.legendOut}`}
+          />
+          {s.name}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+interface Kolom<T> {
+  header: string;
+  right?: boolean;
+  cell: (row: T) => ReactNode;
+  footer?: ReactNode;
+}
+
+function TabelLaporan<T extends { bulan: string }>({
+  rows,
+  kolom,
+}: {
+  rows: T[];
+  kolom: Kolom<T>[];
+}) {
+  const c = useC();
+  const adaFooter = kolom.some((k) => k.footer !== undefined);
+
+  return (
+    <div className={`mt-5 overflow-x-auto rounded-2xl border ${c.line}`}>
+      <table className="w-full min-w-[520px] text-left text-sm">
+        <thead className={`text-xs uppercase tracking-wide ${c.tableHead}`}>
+          <tr>
+            {kolom.map((k) => (
+              <th
+                key={k.header}
+                scope="col"
+                className={`px-4 py-3 font-medium ${k.right ? "text-right" : ""}`}
+              >
+                {k.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className={`divide-y ${c.divider}`}>
+          {rows.map((row) => (
+            <tr key={row.bulan} className={`transition-colors ${c.rowHover}`}>
+              {kolom.map((k) => (
+                <td
+                  key={k.header}
+                  className={`px-4 py-3 ${k.right ? "text-right tabular-nums" : ""}`}
+                >
+                  {k.cell(row)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+        {adaFooter && (
+          <tfoot className={`border-t font-semibold ${c.line} ${c.tableFoot} ${c.title}`}>
+            <tr>
+              {kolom.map((k) => (
+                <td
+                  key={k.header}
+                  className={`px-4 py-3 ${k.right ? "text-right tabular-nums" : ""}`}
+                >
+                  {k.footer}
+                </td>
+              ))}
+            </tr>
+          </tfoot>
+        )}
+      </table>
+    </div>
+  );
+}
+
+interface PanelGrafikProps {
+  judul: string;
+  subjudul: string;
+  labels: string[];
+  series: BarSeries[];
+  format: (n: number) => string;
+  ariaLabel: string;
+  children?: ReactNode;
+}
+
+function PanelGrafik({
+  judul,
+  subjudul,
+  labels,
+  series,
+  format,
+  ariaLabel,
+  children,
+}: PanelGrafikProps) {
+  const c = useC();
+  return (
+    <section className={c.panel}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className={`text-lg font-semibold ${c.title}`}>{judul}</h3>
+          <p className={`mt-0.5 text-sm ${c.muted}`}>{subjudul}</p>
+        </div>
+        <ChartLegend series={series} />
+      </div>
+      <BarChart labels={labels} series={series} format={format} ariaLabel={ariaLabel} />
+      {children}
+    </section>
   );
 }
 
 // ===================== Component =====================
 export default function Laporan() {
+  const c = useC();
   const [tahun, setTahun] = useState<string>(TAHUN[0]);
   const [tab, setTab] = useState<TabLaporan>("Keuangan");
 
@@ -126,12 +496,15 @@ export default function Laporan() {
   // --- Keuangan ---
   const totalMasuk = sum(keuangan.map((k) => k.pemasukan));
   const totalKeluar = sum(keuangan.map((k) => k.pengeluaran));
-  const maxKeuangan = Math.max(...keuangan.flatMap((k) => [k.pemasukan, k.pengeluaran]), 1);
+  const saldoAkhir = totalMasuk - totalKeluar;
 
   // --- Kegiatan ---
   const totalTerlaksana = sum(kegiatan.map((k) => k.terlaksana));
   const totalDibatalkan = sum(kegiatan.map((k) => k.dibatalkan));
   const totalPeserta = sum(kegiatan.map((k) => k.peserta));
+  const totalKegiatan = totalTerlaksana + totalDibatalkan;
+  const persen = (n: number) => (totalKegiatan ? Math.round((n / totalKegiatan) * 100) : 0);
+  const rataPeserta = totalTerlaksana ? Math.round(totalPeserta / totalTerlaksana) : 0;
 
   // --- Anggota ---
   const totalBaru = sum(anggota.map((a) => a.anggotaBaru));
@@ -143,38 +516,47 @@ export default function Laporan() {
       unduhCSV(
         `laporan-keuangan-${tahun}.csv`,
         ["Bulan", "Pemasukan", "Pengeluaran", "Saldo"],
-        keuangan.map((k) => [k.bulan, k.pemasukan, k.pengeluaran, k.pemasukan - k.pengeluaran])
+        keuangan.map((k) => [k.bulan, k.pemasukan, k.pengeluaran, k.pemasukan - k.pengeluaran]),
       );
     } else if (tab === "Kegiatan") {
       unduhCSV(
         `laporan-kegiatan-${tahun}.csv`,
         ["Bulan", "Terlaksana", "Dibatalkan", "Peserta"],
-        kegiatan.map((k) => [k.bulan, k.terlaksana, k.dibatalkan, k.peserta])
+        kegiatan.map((k) => [k.bulan, k.terlaksana, k.dibatalkan, k.peserta]),
       );
     } else {
       unduhCSV(
         `laporan-keanggotaan-${tahun}.csv`,
         ["Bulan", "Anggota Baru", "Keluar", "Total Aktif"],
-        anggota.map((a) => [a.bulan, a.anggotaBaru, a.keluar, a.totalAktif])
+        anggota.map((a) => [a.bulan, a.anggotaBaru, a.keluar, a.totalAktif]),
       );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Laporan</h1>
-          <p className="text-sm text-gray-500">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className={`text-2xl font-semibold tracking-tight sm:text-3xl ${c.title}`}>
+              Laporan
+            </h1>
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${c.tone.lime}`}>
+              Tahun {tahun}
+            </span>
+          </div>
+          <p className={`mt-1 text-sm ${c.muted}`}>
             Rekap keuangan, kegiatan, dan keanggotaan tahun {tahun}.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 print:hidden">
+
+        <div className="flex flex-wrap items-center gap-3 print:hidden">
           <select
+            aria-label="Pilih tahun laporan"
             value={tahun}
             onChange={(e) => setTahun(e.target.value)}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            className={`rounded-full border px-4 py-2.5 text-sm outline-none transition-colors ${c.input}`}
           >
             {TAHUN.map((t) => (
               <option key={t} value={t}>
@@ -182,200 +564,229 @@ export default function Laporan() {
               </option>
             ))}
           </select>
-          <button
-            onClick={handleExport}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
+          <button type="button" onClick={handleExport} className={`${btnBase} border ${c.btnGhost}`}>
+            <Download className="h-4 w-4" />
             Export CSV
           </button>
-          <button
-            onClick={() => window.print()}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
-          >
+          <button type="button" onClick={() => window.print()} className={`${btnBase} ${c.btnPrimary}`}>
+            <Printer className="h-4 w-4" />
             Cetak
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-xl bg-white p-1 shadow-sm print:hidden sm:w-fit">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex-1 rounded-lg px-5 py-2 text-sm font-medium transition sm:flex-none ${
-              tab === t ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+      <div className="print:hidden">
+        <Segment label="Jenis laporan" options={TABS} value={tab} onChange={setTab} />
       </div>
 
       {/* ================= Keuangan ================= */}
       {tab === "Keuangan" && (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Kartu label="Total Pemasukan" nilai={formatRupiah(totalMasuk)} warna="text-emerald-600" />
-            <Kartu label="Total Pengeluaran" nilai={formatRupiah(totalKeluar)} warna="text-red-500" />
-            <Kartu
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <StatCard
+              accent
               label="Saldo Akhir"
-              nilai={formatRupiah(totalMasuk - totalKeluar)}
-              warna={totalMasuk - totalKeluar >= 0 ? "text-blue-600" : "text-red-600"}
+              value={formatRupiah(saldoAkhir)}
+              badge={saldoAkhir >= 0 ? "Surplus" : "Defisit"}
+              sub={`Rekap ${keuangan.length} bulan`}
+              icon={Wallet}
             />
-          </div>
+            <StatCard
+              label="Total Pemasukan"
+              value={formatRupiah(totalMasuk)}
+              sub="Seluruh dana masuk"
+              icon={ArrowDownLeft}
+            />
+            <StatCard
+              label="Total Pengeluaran"
+              value={formatRupiah(totalKeluar)}
+              badgeTone="red"
+              sub="Seluruh dana keluar"
+              icon={ArrowUpRight}
+            />
+          </section>
 
-          {/* Grafik batang sederhana */}
-          <div className="mb-6 rounded-xl bg-white p-5 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-800">Grafik Per Bulan</h2>
-              <div className="flex gap-4 text-xs text-gray-600">
-                <span className="flex items-center gap-1">
-                  <span className="h-3 w-3 rounded bg-emerald-500" /> Pemasukan
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="h-3 w-3 rounded bg-red-400" /> Pengeluaran
-                </span>
-              </div>
-            </div>
-            <div className="flex h-48 items-end gap-3 overflow-x-auto">
-              {keuangan.map((k) => (
-                <div key={k.bulan} className="flex min-w-[56px] flex-1 flex-col items-center gap-2">
-                  <div className="flex h-40 w-full items-end justify-center gap-1">
-                    <div
-                      className="w-5 rounded-t bg-emerald-500"
-                      style={{ height: `${(k.pemasukan / maxKeuangan) * 100}%` }}
-                      title={`Pemasukan: ${formatRupiah(k.pemasukan)}`}
-                    />
-                    <div
-                      className="w-5 rounded-t bg-red-400"
-                      style={{ height: `${(k.pengeluaran / maxKeuangan) * 100}%` }}
-                      title={`Pengeluaran: ${formatRupiah(k.pengeluaran)}`}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-500">{k.bulan}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left text-sm">
-                <thead className="bg-gray-100 text-xs uppercase text-gray-600">
-                  <tr>
-                    <th className="px-4 py-3">Bulan</th>
-                    <th className="px-4 py-3 text-right">Pemasukan</th>
-                    <th className="px-4 py-3 text-right">Pengeluaran</th>
-                    <th className="px-4 py-3 text-right">Saldo</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {keuangan.map((k) => {
+          <PanelGrafik
+            judul="Grafik Per Bulan"
+            subjudul="Perbandingan pemasukan dan pengeluaran"
+            labels={keuangan.map((k) => singkat(k.bulan))}
+            series={[
+              { name: "Pemasukan", values: keuangan.map((k) => k.pemasukan), tone: "in" },
+              { name: "Pengeluaran", values: keuangan.map((k) => k.pengeluaran), tone: "out" },
+            ]}
+            format={formatRupiahRingkas}
+            ariaLabel={`Grafik batang pemasukan dan pengeluaran per bulan tahun ${tahun}`}
+          >
+            <TabelLaporan
+              rows={keuangan}
+              kolom={[
+                {
+                  header: "Bulan",
+                  cell: (k) => <span className={`font-medium ${c.title}`}>{k.bulan}</span>,
+                  footer: "Total",
+                },
+                {
+                  header: "Pemasukan",
+                  right: true,
+                  cell: (k) => <span className={c.toneText.lime}>{formatRupiah(k.pemasukan)}</span>,
+                  footer: formatRupiah(totalMasuk),
+                },
+                {
+                  header: "Pengeluaran",
+                  right: true,
+                  cell: (k) => <span className={c.toneText.red}>{formatRupiah(k.pengeluaran)}</span>,
+                  footer: formatRupiah(totalKeluar),
+                },
+                {
+                  header: "Saldo",
+                  right: true,
+                  cell: (k) => {
                     const saldo = k.pemasukan - k.pengeluaran;
                     return (
-                      <tr key={k.bulan} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-800">{k.bulan}</td>
-                        <td className="px-4 py-3 text-right text-emerald-600">{formatRupiah(k.pemasukan)}</td>
-                        <td className="px-4 py-3 text-right text-red-500">{formatRupiah(k.pengeluaran)}</td>
-                        <td className={`px-4 py-3 text-right font-semibold ${saldo >= 0 ? "text-blue-600" : "text-red-600"}`}>
-                          {formatRupiah(saldo)}
-                        </td>
-                      </tr>
+                      <span className={`font-semibold ${saldo >= 0 ? c.title : c.toneText.red}`}>
+                        {formatRupiah(saldo)}
+                      </span>
                     );
-                  })}
-                </tbody>
-                <tfoot className="bg-gray-50 font-semibold text-gray-800">
-                  <tr>
-                    <td className="px-4 py-3">Total</td>
-                    <td className="px-4 py-3 text-right">{formatRupiah(totalMasuk)}</td>
-                    <td className="px-4 py-3 text-right">{formatRupiah(totalKeluar)}</td>
-                    <td className="px-4 py-3 text-right">{formatRupiah(totalMasuk - totalKeluar)}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+                  },
+                  footer: formatRupiah(saldoAkhir),
+                },
+              ]}
+            />
+          </PanelGrafik>
         </>
       )}
 
       {/* ================= Kegiatan ================= */}
       {tab === "Kegiatan" && (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Kartu label="Kegiatan Terlaksana" nilai={String(totalTerlaksana)} warna="text-emerald-600" />
-            <Kartu label="Kegiatan Dibatalkan" nilai={String(totalDibatalkan)} warna="text-red-500" />
-            <Kartu label="Total Peserta" nilai={String(totalPeserta)} warna="text-blue-600" />
-          </div>
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <StatCard
+              accent
+              label="Total Peserta"
+              value={angka(totalPeserta)}
+              sub={`Rata-rata ${rataPeserta} per kegiatan terlaksana`}
+              icon={Users}
+            />
+            <StatCard
+              label="Kegiatan Terlaksana"
+              value={angka(totalTerlaksana)}
+              badge={`${persen(totalTerlaksana)}% dari rencana`}
+              icon={CalendarCheck}
+            />
+            <StatCard
+              label="Kegiatan Dibatalkan"
+              value={angka(totalDibatalkan)}
+              badge={`${persen(totalDibatalkan)}% dari rencana`}
+              badgeTone="red"
+              icon={CalendarX}
+            />
+          </section>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[480px] text-left text-sm">
-                <thead className="bg-gray-100 text-xs uppercase text-gray-600">
-                  <tr>
-                    <th className="px-4 py-3">Bulan</th>
-                    <th className="px-4 py-3 text-right">Terlaksana</th>
-                    <th className="px-4 py-3 text-right">Dibatalkan</th>
-                    <th className="px-4 py-3 text-right">Peserta</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {kegiatan.map((k) => (
-                    <tr key={k.bulan} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{k.bulan}</td>
-                      <td className="px-4 py-3 text-right text-gray-700">{k.terlaksana}</td>
-                      <td className="px-4 py-3 text-right text-gray-700">{k.dibatalkan}</td>
-                      <td className="px-4 py-3 text-right text-gray-700">{k.peserta}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-gray-50 font-semibold text-gray-800">
-                  <tr>
-                    <td className="px-4 py-3">Total</td>
-                    <td className="px-4 py-3 text-right">{totalTerlaksana}</td>
-                    <td className="px-4 py-3 text-right">{totalDibatalkan}</td>
-                    <td className="px-4 py-3 text-right">{totalPeserta}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+          <PanelGrafik
+            judul="Kegiatan Per Bulan"
+            subjudul="Jumlah kegiatan terlaksana dan dibatalkan"
+            labels={kegiatan.map((k) => singkat(k.bulan))}
+            series={[
+              { name: "Terlaksana", values: kegiatan.map((k) => k.terlaksana), tone: "in" },
+              { name: "Dibatalkan", values: kegiatan.map((k) => k.dibatalkan), tone: "out" },
+            ]}
+            format={angka}
+            ariaLabel={`Grafik batang kegiatan terlaksana dan dibatalkan per bulan tahun ${tahun}`}
+          >
+            <TabelLaporan
+              rows={kegiatan}
+              kolom={[
+                {
+                  header: "Bulan",
+                  cell: (k) => <span className={`font-medium ${c.title}`}>{k.bulan}</span>,
+                  footer: "Total",
+                },
+                {
+                  header: "Terlaksana",
+                  right: true,
+                  cell: (k) => <span className={c.text}>{k.terlaksana}</span>,
+                  footer: totalTerlaksana,
+                },
+                {
+                  header: "Dibatalkan",
+                  right: true,
+                  cell: (k) => <span className={c.text}>{k.dibatalkan}</span>,
+                  footer: totalDibatalkan,
+                },
+                {
+                  header: "Peserta",
+                  right: true,
+                  cell: (k) => <span className={c.text}>{k.peserta}</span>,
+                  footer: totalPeserta,
+                },
+              ]}
+            />
+          </PanelGrafik>
         </>
       )}
 
       {/* ================= Keanggotaan ================= */}
       {tab === "Keanggotaan" && (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Kartu label="Anggota Baru" nilai={String(totalBaru)} warna="text-emerald-600" />
-            <Kartu label="Anggota Keluar" nilai={String(totalKeluarAnggota)} warna="text-red-500" />
-            <Kartu label="Anggota Aktif Saat Ini" nilai={String(anggotaTerakhir)} warna="text-blue-600" />
-          </div>
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <StatCard
+              accent
+              label="Anggota Aktif Saat Ini"
+              value={angka(anggotaTerakhir)}
+              sub={`Per ${anggota[anggota.length - 1]?.bulan ?? "-"} ${tahun}`}
+              icon={Users}
+            />
+            <StatCard
+              label="Anggota Baru"
+              value={angka(totalBaru)}
+              sub="Bergabung sepanjang periode"
+              icon={UserPlus}
+            />
+            <StatCard
+              label="Anggota Keluar"
+              value={angka(totalKeluarAnggota)}
+              badgeTone="red"
+              sub="Berhenti sepanjang periode"
+              icon={UserMinus}
+            />
+          </section>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[480px] text-left text-sm">
-                <thead className="bg-gray-100 text-xs uppercase text-gray-600">
-                  <tr>
-                    <th className="px-4 py-3">Bulan</th>
-                    <th className="px-4 py-3 text-right">Anggota Baru</th>
-                    <th className="px-4 py-3 text-right">Keluar</th>
-                    <th className="px-4 py-3 text-right">Total Aktif</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {anggota.map((a) => (
-                    <tr key={a.bulan} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{a.bulan}</td>
-                      <td className="px-4 py-3 text-right text-emerald-600">+{a.anggotaBaru}</td>
-                      <td className="px-4 py-3 text-right text-red-500">-{a.keluar}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-gray-800">{a.totalAktif}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <PanelGrafik
+            judul="Pergerakan Anggota"
+            subjudul="Anggota baru dan anggota keluar per bulan"
+            labels={anggota.map((a) => singkat(a.bulan))}
+            series={[
+              { name: "Anggota baru", values: anggota.map((a) => a.anggotaBaru), tone: "in" },
+              { name: "Anggota keluar", values: anggota.map((a) => a.keluar), tone: "out" },
+            ]}
+            format={angka}
+            ariaLabel={`Grafik batang anggota baru dan keluar per bulan tahun ${tahun}`}
+          >
+            <TabelLaporan
+              rows={anggota}
+              kolom={[
+                {
+                  header: "Bulan",
+                  cell: (a) => <span className={`font-medium ${c.title}`}>{a.bulan}</span>,
+                },
+                {
+                  header: "Anggota Baru",
+                  right: true,
+                  cell: (a) => <span className={c.toneText.lime}>+{a.anggotaBaru}</span>,
+                },
+                {
+                  header: "Keluar",
+                  right: true,
+                  cell: (a) => <span className={c.toneText.red}>-{a.keluar}</span>,
+                },
+                {
+                  header: "Total Aktif",
+                  right: true,
+                  cell: (a) => <span className={`font-semibold ${c.title}`}>{a.totalAktif}</span>,
+                },
+              ]}
+            />
+          </PanelGrafik>
         </>
       )}
     </div>

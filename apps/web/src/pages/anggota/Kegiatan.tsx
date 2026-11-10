@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+import { Search, CalendarDays, Clock, MapPin } from "lucide-react";
+// NOTE: sesuaikan path import ini dengan lokasi file Anda
+import { useTheme } from "../../contexts/ThemeContext";
 
 type Status = "Akan Datang" | "Berlangsung" | "Selesai";
 
@@ -54,12 +57,6 @@ const dataKegiatan: Kegiatan[] = [
 
 const filterOptions: ("Semua" | Status)[] = ["Semua", "Akan Datang", "Berlangsung", "Selesai"];
 
-const badgeStyle: Record<Status, string> = {
-  "Akan Datang": "bg-blue-100 text-blue-700",
-  Berlangsung: "bg-green-100 text-green-700",
-  Selesai: "bg-gray-200 text-gray-600",
-};
-
 const formatTanggal = (iso: string) =>
   new Date(iso).toLocaleDateString("id-ID", {
     day: "numeric",
@@ -71,6 +68,8 @@ export default function Kegiatan() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"Semua" | Status>("Semua");
   const [terdaftar, setTerdaftar] = useState<number[]>([3]);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const hasil = useMemo(
     () =>
@@ -85,62 +84,134 @@ export default function Kegiatan() {
   const toggleDaftar = (id: number) =>
     setTerdaftar((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
-  return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Kegiatan</h1>
-        <p className="text-gray-500">Lihat dan daftar kegiatan organisasi.</p>
-      </div>
+  // Token warna sesuai tema (sama dengan dashboard admin)
+  const c = isDark
+    ? {
+        card: "border-white/10 bg-white/[0.04]",
+        title: "text-white",
+        text: "text-white/70",
+        muted: "text-white/45",
+        input:
+          "border-white/10 bg-white/[0.04] text-white placeholder:text-white/40 focus:border-lime-300/50 focus:ring-lime-300/30",
+        segment: "border-white/10 bg-white/[0.04]",
+        segActive: "bg-lime-300 text-[#10150c]",
+        segIdle: "text-white/60 hover:text-white",
+        iconMuted: "text-lime-300",
+        btnJoin: "bg-lime-300 text-[#10150c] hover:bg-lime-200",
+        btnCancel: "bg-red-400/10 text-red-300 hover:bg-red-400/20",
+        status: {
+          "Akan Datang": "bg-sky-300/15 text-sky-300",
+          Berlangsung: "bg-lime-300/15 text-lime-300",
+          Selesai: "bg-white/[0.08] text-white/50",
+        } as Record<Status, string>,
+      }
+    : {
+        card: "border-slate-200 bg-white shadow-sm",
+        title: "text-slate-900",
+        text: "text-slate-600",
+        muted: "text-slate-400",
+        input:
+          "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-lime-500 focus:ring-lime-300/50",
+        segment: "border-slate-200 bg-slate-50",
+        segActive: "bg-lime-400 text-[#10150c]",
+        segIdle: "text-slate-500 hover:text-slate-800",
+        iconMuted: "text-lime-700",
+        btnJoin: "bg-lime-400 text-[#10150c] hover:bg-lime-300",
+        btnCancel: "bg-red-50 text-red-600 hover:bg-red-100",
+        status: {
+          "Akan Datang": "bg-sky-100 text-sky-700",
+          Berlangsung: "bg-lime-100 text-lime-800",
+          Selesai: "bg-slate-100 text-slate-500",
+        } as Record<Status, string>,
+      };
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari kegiatan..."
-          className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <div className="flex gap-2 flex-wrap">
+  const card = `rounded-3xl border p-6 ${c.card}`;
+
+  return (
+    <div className="space-y-5">
+      {/* Hero */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1d2a16] via-[#121a0e] to-[#0c0f0b] px-6 py-8 text-white sm:px-10 sm:py-10">
+        <div className="pointer-events-none absolute -right-20 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full border-[28px] border-lime-300/[0.06]" />
+        <div className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full bg-lime-300/10 blur-3xl" />
+
+        <h1 className="relative max-w-3xl text-2xl font-semibold tracking-tight sm:text-4xl">
+          Kegiatan
+        </h1>
+        <p className="relative mt-3 max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg">
+          Lihat dan daftar kegiatan organisasi.
+        </p>
+      </section>
+
+      {/* Pencarian & filter */}
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search
+            className={`pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 ${c.muted}`}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari kegiatan..."
+            className={`w-full rounded-full border py-2.5 pl-11 pr-4 text-sm outline-none focus:ring-2 ${c.input}`}
+          />
+        </div>
+        <div className={`flex flex-wrap rounded-full border p-1 ${c.segment}`}>
           {filterOptions.map((opt) => (
             <button
               key={opt}
+              type="button"
               onClick={() => setFilter(opt)}
-              className={`px-3 py-2 rounded-lg text-sm border ${
-                filter === opt ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 hover:bg-gray-50"
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                filter === opt ? c.segActive : c.segIdle
               }`}
             >
               {opt}
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
+      {/* Daftar kegiatan */}
       {hasil.length === 0 ? (
-        <p className="text-center text-gray-400 py-10">Tidak ada kegiatan ditemukan.</p>
+        <p className={`py-10 text-center text-sm ${c.muted}`}>Tidak ada kegiatan ditemukan.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {hasil.map((k) => {
             const sudahDaftar = terdaftar.includes(k.id);
             return (
-              <div key={k.id} className="bg-white border rounded-xl shadow-sm p-5 flex flex-col">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-gray-800">{k.judul}</h3>
-                  <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${badgeStyle[k.status]}`}>
+              <div key={k.id} className={`${card} flex flex-col`}>
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className={`text-lg font-semibold ${c.title}`}>{k.judul}</h3>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${c.status[k.status]}`}
+                  >
                     {k.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mt-2 flex-1">{k.deskripsi}</p>
-                <div className="text-sm text-gray-500 mt-3 space-y-1">
-                  <p>📅 {formatTanggal(k.tanggal)} • {k.waktu}</p>
-                  <p>📍 {k.lokasi}</p>
+
+                <p className={`mt-2 flex-1 text-sm leading-relaxed ${c.text}`}>{k.deskripsi}</p>
+
+                <div className={`mt-4 space-y-1.5 text-sm ${c.muted}`}>
+                  <p className="flex items-center gap-2">
+                    <CalendarDays className={`h-4 w-4 shrink-0 ${c.iconMuted}`} />
+                    {formatTanggal(k.tanggal)}
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-4 w-4" /> {k.waktu}
+                    </span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <MapPin className={`h-4 w-4 shrink-0 ${c.iconMuted}`} />
+                    {k.lokasi}
+                  </p>
                 </div>
+
                 {k.status !== "Selesai" && (
                   <button
+                    type="button"
                     onClick={() => toggleDaftar(k.id)}
-                    className={`mt-4 w-full py-2 rounded-lg text-sm font-medium ${
-                      sudahDaftar
-                        ? "bg-red-50 text-red-600 hover:bg-red-100"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    className={`mt-5 w-full rounded-full py-2.5 text-sm font-semibold transition-colors ${
+                      sudahDaftar ? c.btnCancel : c.btnJoin
                     }`}
                   >
                     {sudahDaftar ? "Batalkan Pendaftaran" : "Daftar Kegiatan"}
@@ -149,7 +220,7 @@ export default function Kegiatan() {
               </div>
             );
           })}
-        </div>
+        </section>
       )}
     </div>
   );

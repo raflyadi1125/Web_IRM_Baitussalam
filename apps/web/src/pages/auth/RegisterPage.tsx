@@ -28,13 +28,9 @@ function validate(nama: string, email: string, password: string, confirm: string
   return errors
 }
 
-const inputClass = (hasError: boolean) =>
-  `h-11 w-full rounded-xl border bg-white pl-10 pr-3 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-emerald-800 ${
-    hasError ? 'border-red-300' : 'border-slate-200'
-  }`
-
 export default function RegisterPage() {
   const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [nama, setNama] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -65,29 +61,81 @@ export default function RegisterPage() {
     }
   }
 
+  // Token warna sesuai tema (sama dengan dashboard admin & halaman login)
+  const c = isDark
+    ? {
+        page: 'bg-[#0c0f0b]',
+        title: 'text-white',
+        text: 'text-white/70',
+        muted: 'text-white/45',
+        label: 'text-white/80',
+        icon: 'text-white/40',
+        pill: 'border-lime-300/30 bg-lime-300/10 text-lime-300',
+        input:
+          'border-white/10 bg-white/[0.04] text-white placeholder:text-white/40 focus:border-lime-300/50 focus:ring-lime-300/30',
+        inputError: 'border-red-400/50',
+        eyeBtn: 'text-white/50 hover:bg-white/[0.08] hover:text-white',
+        fieldError: 'text-red-300',
+        alert: 'border-red-400/30 bg-red-400/10 text-red-300',
+        success: 'border-lime-300/30 bg-lime-300/10 text-lime-300',
+        link: 'text-lime-300',
+        btn: 'bg-lime-300 text-[#10150c] shadow-[0_0_24px_rgba(190,242,100,0.25)] hover:bg-lime-200',
+      }
+    : {
+        page: 'bg-slate-50',
+        title: 'text-slate-900',
+        text: 'text-slate-600',
+        muted: 'text-slate-500',
+        label: 'text-slate-700',
+        icon: 'text-slate-400',
+        pill: 'border-lime-300 bg-lime-100 text-lime-800',
+        input:
+          'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-lime-500 focus:ring-lime-300/50',
+        inputError: 'border-red-300',
+        eyeBtn: 'text-slate-500 hover:bg-slate-100 hover:text-slate-700',
+        fieldError: 'text-red-700',
+        alert: 'border-red-200 bg-red-50 text-red-800',
+        success: 'border-lime-300 bg-lime-50 text-lime-800',
+        link: 'text-lime-700',
+        btn: 'bg-lime-400 text-[#10150c] shadow-sm hover:bg-lime-300',
+      }
+
+  const inputClass = (hasError: boolean) =>
+    `h-11 w-full rounded-full border pl-11 pr-4 text-sm outline-none transition focus:ring-2 ${c.input} ${
+      hasError ? c.inputError : ''
+    }`
+
   const passwordToggle = (
     <button
       type="button"
       onClick={() => setShowPassword((current) => !current)}
       aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
       aria-pressed={showPassword}
-      className="absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+      className={`absolute right-1.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full ${c.eyeBtn}`}
     >
       {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
     </button>
   )
 
+  const labelClass = `mb-1.5 block text-xs font-semibold ${c.label}`
+  const iconClass = `pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${c.icon}`
+  const errorClass = `mt-1.5 text-xs ${c.fieldError}`
+
   return (
-    <div className={`app-shell ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
+    <div className={`app-shell ${isDark ? 'theme-dark' : 'theme-light'}`}>
       <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         <BrandPanel />
 
-        <div className="relative flex flex-col">
-          <header className="flex items-center gap-3 bg-linear-to-br from-[#14342a] to-[#2f6857] px-5 py-4 text-white lg:hidden">
-            <BrandLogo className="h-10 w-10" />
-            <div>
+        <div className={`relative flex flex-col ${c.page}`}>
+          <header className="relative flex items-center gap-3 overflow-hidden bg-gradient-to-br from-[#1d2a16] via-[#121a0e] to-[#0c0f0b] px-5 py-4 text-white lg:hidden">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-10 -top-16 h-40 w-40 rounded-full bg-lime-300/10 blur-3xl"
+            />
+            <BrandLogo className="relative h-10 w-10" />
+            <div className="relative">
               <p className="text-sm font-bold leading-tight">IRM Baitussalam</p>
-              <p className="text-[11px] text-emerald-100/80">Sistem Informasi</p>
+              <p className="text-[11px] text-white/60">Sistem Informasi</p>
             </div>
           </header>
 
@@ -97,11 +145,15 @@ export default function RegisterPage() {
 
           <main className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
             <div className="w-full max-w-md">
-              <div className="eyebrow">
-                <span className="eyebrow-dot" /> DAFTAR AKUN
-              </div>
-              <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900">Buat akun baru</h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium ${c.pill}`}
+              >
+                <span className="h-2 w-2 rounded-full bg-current" /> DAFTAR AKUN
+              </span>
+              <h1 className={`mt-4 text-2xl font-semibold tracking-tight sm:text-3xl ${c.title}`}>
+                Buat akun baru
+              </h1>
+              <p className={`mt-2 text-sm leading-6 ${c.text}`}>
                 Akun baru terdaftar sebagai Anggota. Peran lain ditetapkan oleh admin.
               </p>
 
@@ -109,7 +161,7 @@ export default function RegisterPage() {
                 <div className="mt-6 space-y-4">
                   <div
                     role="status"
-                    className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs leading-5 text-emerald-800"
+                    className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs leading-5 ${c.success}`}
                   >
                     <CheckCircle2 size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
                     <span>
@@ -118,7 +170,7 @@ export default function RegisterPage() {
                   </div>
                   <Link
                     to="/"
-                    className="flex h-11 w-full items-center justify-center rounded-xl bg-emerald-800 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900"
+                    className={`flex h-11 w-full items-center justify-center rounded-full text-sm font-semibold transition-colors ${c.btn}`}
                   >
                     Kembali ke halaman masuk
                   </Link>
@@ -126,15 +178,11 @@ export default function RegisterPage() {
               ) : (
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
                   <div>
-                    <label htmlFor="register-nama" className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    <label htmlFor="register-nama" className={labelClass}>
                       Nama lengkap
                     </label>
                     <div className="relative">
-                      <UserRound
-                        size={16}
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <UserRound size={16} aria-hidden="true" className={iconClass} />
                       <input
                         id="register-nama"
                         type="text"
@@ -146,19 +194,15 @@ export default function RegisterPage() {
                         className={inputClass(Boolean(fieldErrors.nama))}
                       />
                     </div>
-                    {fieldErrors.nama && <p className="mt-1.5 text-xs text-red-700">{fieldErrors.nama}</p>}
+                    {fieldErrors.nama && <p className={errorClass}>{fieldErrors.nama}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="register-email" className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    <label htmlFor="register-email" className={labelClass}>
                       Email
                     </label>
                     <div className="relative">
-                      <Mail
-                        size={16}
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <Mail size={16} aria-hidden="true" className={iconClass} />
                       <input
                         id="register-email"
                         type="email"
@@ -170,19 +214,15 @@ export default function RegisterPage() {
                         className={inputClass(Boolean(fieldErrors.email))}
                       />
                     </div>
-                    {fieldErrors.email && <p className="mt-1.5 text-xs text-red-700">{fieldErrors.email}</p>}
+                    {fieldErrors.email && <p className={errorClass}>{fieldErrors.email}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="register-password" className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    <label htmlFor="register-password" className={labelClass}>
                       Kata sandi
                     </label>
                     <div className="relative">
-                      <Lock
-                        size={16}
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <Lock size={16} aria-hidden="true" className={iconClass} />
                       <input
                         id="register-password"
                         type={showPassword ? 'text' : 'password'}
@@ -191,23 +231,19 @@ export default function RegisterPage() {
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         aria-invalid={Boolean(fieldErrors.password)}
-                        className={`${inputClass(Boolean(fieldErrors.password))} pr-11`}
+                        className={`${inputClass(Boolean(fieldErrors.password))} pr-12`}
                       />
                       {passwordToggle}
                     </div>
-                    {fieldErrors.password && <p className="mt-1.5 text-xs text-red-700">{fieldErrors.password}</p>}
+                    {fieldErrors.password && <p className={errorClass}>{fieldErrors.password}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="register-confirm" className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    <label htmlFor="register-confirm" className={labelClass}>
                       Ulangi kata sandi
                     </label>
                     <div className="relative">
-                      <Lock
-                        size={16}
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
+                      <Lock size={16} aria-hidden="true" className={iconClass} />
                       <input
                         id="register-confirm"
                         type={showPassword ? 'text' : 'password'}
@@ -219,13 +255,13 @@ export default function RegisterPage() {
                         className={inputClass(Boolean(fieldErrors.confirm))}
                       />
                     </div>
-                    {fieldErrors.confirm && <p className="mt-1.5 text-xs text-red-700">{fieldErrors.confirm}</p>}
+                    {fieldErrors.confirm && <p className={errorClass}>{fieldErrors.confirm}</p>}
                   </div>
 
                   {error && (
                     <div
                       role="alert"
-                      className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-xs leading-5 text-red-800"
+                      className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs leading-5 ${c.alert}`}
                     >
                       <AlertCircle size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
                       <span>{error}</span>
@@ -235,7 +271,7 @@ export default function RegisterPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-800 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-70"
+                    className={`flex h-11 w-full items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${c.btn}`}
                   >
                     {submitting ? (
                       <>
@@ -248,16 +284,16 @@ export default function RegisterPage() {
                     )}
                   </button>
 
-                  <p className="text-center text-sm text-slate-500">
+                  <p className={`text-center text-sm ${c.muted}`}>
                     Sudah punya akun?{' '}
-                    <Link to="/" className="font-medium text-emerald-800 hover:underline">
+                    <Link to="/" className={`font-medium hover:underline ${c.link}`}>
                       Masuk di sini
                     </Link>
                   </p>
                 </form>
               )}
 
-              <p className="mt-8 text-center text-[11px] text-slate-500">
+              <p className={`mt-8 text-center text-[11px] ${c.muted}`}>
                 © {new Date().getFullYear()} IRM Baitussalam
               </p>
             </div>

@@ -1,5 +1,18 @@
 import { useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Users,
+  UserCheck,
+  UserX,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+// NOTE: sesuaikan path import ini dengan lokasi file halaman Anda
+import { useTheme } from "../../contexts/ThemeContext";
 
 // ===================== Types =====================
 type Jabatan =
@@ -56,13 +69,22 @@ const DATA_AWAL: Pengurus[] = [
 ];
 
 // ===================== Helpers =====================
-const badgeJabatan: Record<Jabatan, string> = {
+const BADGE_JABATAN_DARK: Record<Jabatan, string> = {
+  Ketua: "bg-purple-400/15 text-purple-300",
+  "Wakil Ketua": "bg-indigo-400/15 text-indigo-300",
+  Sekretaris: "bg-sky-400/15 text-sky-300",
+  Bendahara: "bg-emerald-400/15 text-emerald-300",
+  "Koordinator Seksi": "bg-amber-400/15 text-amber-300",
+  "Anggota Seksi": "bg-white/[0.06] text-white/60",
+};
+
+const BADGE_JABATAN_LIGHT: Record<Jabatan, string> = {
   Ketua: "bg-purple-100 text-purple-700",
   "Wakil Ketua": "bg-indigo-100 text-indigo-700",
-  Sekretaris: "bg-blue-100 text-blue-700",
+  Sekretaris: "bg-sky-100 text-sky-700",
   Bendahara: "bg-emerald-100 text-emerald-700",
   "Koordinator Seksi": "bg-amber-100 text-amber-700",
-  "Anggota Seksi": "bg-gray-100 text-gray-700",
+  "Anggota Seksi": "bg-slate-100 text-slate-600",
 };
 
 const inisial = (nama: string): string =>
@@ -72,9 +94,6 @@ const inisial = (nama: string): string =>
     .slice(0, 2)
     .map((n) => n[0].toUpperCase())
     .join("");
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
 // ===================== Component =====================
 export default function DataPengurus() {
@@ -88,6 +107,64 @@ export default function DataPengurus() {
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<PengurusForm>(FORM_KOSONG);
   const [deleteTarget, setDeleteTarget] = useState<Pengurus | null>(null);
+
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Token warna sesuai tema (tidak bergantung pada CSS tema lama)
+  const c = isDark
+    ? {
+        card: "border-white/10 bg-white/[0.04]",
+        title: "text-white",
+        text: "text-white/70",
+        muted: "text-white/45",
+        line: "border-white/10",
+        divider: "divide-white/10",
+        thead: "bg-white/[0.03] text-white/50",
+        rowHover: "hover:bg-white/[0.03]",
+        field:
+          "border-white/10 bg-white/[0.04] text-white placeholder:text-white/40 focus:border-lime-300/60 focus:ring-lime-300/20 [color-scheme:dark]",
+        iconWrap: "border-white/10 bg-white/[0.06] text-lime-300",
+        avatar: "bg-lime-300 text-[#10150c]",
+        badgeOn: "bg-lime-300/15 text-lime-300",
+        badgeOff: "bg-red-400/15 text-red-300",
+        jabatan: BADGE_JABATAN_DARK,
+        ghost: "border-white/10 text-white/70 hover:bg-white/[0.06]",
+        pageOn: "border-lime-300 bg-lime-300 text-[#10150c]",
+        edit: "text-white/50 hover:bg-lime-300/10 hover:text-lime-300",
+        del: "text-white/50 hover:bg-red-500/10 hover:text-red-400",
+        primary: "bg-lime-300 text-[#10150c] hover:bg-lime-200",
+        danger: "bg-red-500 text-white hover:bg-red-400",
+        modal: "border border-white/10 bg-[#141811] text-white",
+        backdrop: "bg-black/60",
+      }
+    : {
+        card: "border-slate-200 bg-white shadow-sm",
+        title: "text-slate-900",
+        text: "text-slate-600",
+        muted: "text-slate-400",
+        line: "border-slate-100",
+        divider: "divide-slate-100",
+        thead: "bg-slate-50 text-slate-500",
+        rowHover: "hover:bg-slate-50",
+        field:
+          "border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:border-lime-500 focus:ring-lime-500/20",
+        iconWrap: "border-lime-200 bg-lime-50 text-lime-700",
+        avatar: "bg-lime-400 text-[#10150c]",
+        badgeOn: "bg-lime-100 text-lime-800",
+        badgeOff: "bg-red-100 text-red-600",
+        jabatan: BADGE_JABATAN_LIGHT,
+        ghost: "border-slate-200 text-slate-600 hover:bg-slate-50",
+        pageOn: "border-lime-400 bg-lime-400 text-[#10150c]",
+        edit: "text-slate-500 hover:bg-lime-50 hover:text-lime-700",
+        del: "text-slate-500 hover:bg-red-50 hover:text-red-600",
+        primary: "bg-lime-400 text-[#10150c] hover:bg-lime-300",
+        danger: "bg-red-600 text-white hover:bg-red-700",
+        modal: "border border-slate-200 bg-white text-slate-900",
+        backdrop: "bg-slate-900/40",
+      };
+
+  const field = `w-full border text-sm focus:outline-none focus:ring-2 ${c.field}`;
 
   // ---------- Filter + pagination ----------
   const filtered = useMemo(() => {
@@ -110,6 +187,12 @@ export default function DataPengurus() {
   const pageData = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const totalAktif = data.filter((p) => p.status === "Aktif").length;
+
+  const ringkasan = [
+    { label: "Total Pengurus", nilai: data.length, icon: Users },
+    { label: "Aktif", nilai: totalAktif, icon: UserCheck },
+    { label: "Nonaktif", nilai: data.length - totalAktif, icon: UserX },
+  ];
 
   // ---------- Handlers ----------
   const resetPage = () => setPage(1);
@@ -161,154 +244,177 @@ export default function DataPengurus() {
 
   // ---------- Render ----------
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-5">
+      {/* Judul */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Data Pengurus</h1>
-          <p className="text-sm text-gray-500">
+          <h2 className={`text-2xl font-semibold ${c.title}`}>Data Pengurus</h2>
+          <p className={`mt-0.5 text-sm ${c.muted}`}>
             Kelola data pengurus organisasi.
           </p>
         </div>
         <button
+          type="button"
           onClick={bukaTambah}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700"
+          className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors ${c.primary}`}
         >
-          <span className="text-lg leading-none">+</span> Tambah Pengurus
+          <Plus className="h-4 w-4" />
+          Tambah Pengurus
         </button>
       </div>
 
       {/* Ringkasan */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Total Pengurus</p>
-          <p className="text-2xl font-bold text-gray-800">{data.length}</p>
-        </div>
-        <div className="rounded-xl bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Aktif</p>
-          <p className="text-2xl font-bold text-emerald-600">{totalAktif}</p>
-        </div>
-        <div className="rounded-xl bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Nonaktif</p>
-          <p className="text-2xl font-bold text-red-500">
-            {data.length - totalAktif}
-          </p>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="mb-4 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm md:flex-row md:items-center">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            resetPage();
-          }}
-          placeholder="Cari nama, email, atau no. HP..."
-          className={`${inputClass} md:flex-1`}
-        />
-        <select
-          value={filterJabatan}
-          onChange={(e) => {
-            setFilterJabatan(e.target.value as Jabatan | "Semua");
-            resetPage();
-          }}
-          className={`${inputClass} md:w-48`}
-        >
-          <option value="Semua">Semua Jabatan</option>
-          {DAFTAR_JABATAN.map((j) => (
-            <option key={j} value={j}>
-              {j}
-            </option>
-          ))}
-        </select>
-        <select
-          value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value as Status | "Semua");
-            resetPage();
-          }}
-          className={`${inputClass} md:w-40`}
-        >
-          <option value="Semua">Semua Status</option>
-          <option value="Aktif">Aktif</option>
-          <option value="Nonaktif">Nonaktif</option>
-        </select>
+      <div className="grid gap-5 sm:grid-cols-3">
+        {ringkasan.map(({ label, nilai, icon: Icon }) => (
+          <div
+            key={label}
+            className={`flex items-center justify-between gap-4 rounded-3xl border p-6 ${c.card}`}
+          >
+            <div>
+              <p className={`text-sm font-medium ${c.text}`}>{label}</p>
+              <p
+                className={`mt-2 text-3xl font-semibold tracking-tight ${c.title}`}
+              >
+                {nilai}
+              </p>
+            </div>
+            <span
+              className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border ${c.iconWrap}`}
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+          </div>
+        ))}
       </div>
 
       {/* Tabel */}
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className={`overflow-hidden rounded-3xl border ${c.card}`}>
+        {/* Toolbar */}
+        <div className={`flex flex-wrap items-center gap-3 border-b p-5 ${c.line}`}>
+          <div className="relative min-w-[240px] flex-1">
+            <Search
+              className={`pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 ${c.muted}`}
+            />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                resetPage();
+              }}
+              placeholder="Cari nama, email, atau no. HP..."
+              className={`${field} rounded-full py-2.5 pl-11 pr-4`}
+            />
+          </div>
+          <select
+            value={filterJabatan}
+            onChange={(e) => {
+              setFilterJabatan(e.target.value as Jabatan | "Semua");
+              resetPage();
+            }}
+            className={`${field} !w-auto rounded-full px-4 py-2.5`}
+          >
+            <option value="Semua">Semua jabatan</option>
+            {DAFTAR_JABATAN.map((j) => (
+              <option key={j} value={j}>
+                {j}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value as Status | "Semua");
+              resetPage();
+            }}
+            className={`${field} !w-auto rounded-full px-4 py-2.5`}
+          >
+            <option value="Semua">Semua status</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-gray-100 text-xs uppercase text-gray-600">
+            <thead className={c.thead}>
               <tr>
-                <th className="px-4 py-3">No</th>
-                <th className="px-4 py-3">Nama</th>
-                <th className="px-4 py-3">Jabatan</th>
-                <th className="px-4 py-3">Kontak</th>
-                <th className="px-4 py-3">Periode</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-center">Aksi</th>
+                <th className="px-5 py-3 font-medium">No</th>
+                <th className="px-5 py-3 font-medium">Nama</th>
+                <th className="px-5 py-3 font-medium">Jabatan</th>
+                <th className="px-5 py-3 font-medium">Kontak</th>
+                <th className="px-5 py-3 font-medium">Periode</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 text-right font-medium">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className={`divide-y ${c.divider}`}>
               {pageData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={7} className={`px-5 py-12 text-center ${c.muted}`}>
                     Data pengurus tidak ditemukan.
                   </td>
                 </tr>
               ) : (
                 pageData.map((p, i) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-500">
+                  <tr key={p.id} className={`transition-colors ${c.rowHover}`}>
+                    <td className={`px-5 py-4 ${c.muted}`}>
                       {startIndex + i + 1}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+                        <div
+                          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-bold ${c.avatar}`}
+                        >
                           {inisial(p.nama)}
                         </div>
-                        <span className="font-medium text-gray-800">{p.nama}</span>
+                        <span
+                          className={`whitespace-nowrap font-medium ${c.title}`}
+                        >
+                          {p.nama}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeJabatan[p.jabatan]}`}
+                        className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${c.jabatan[p.jabatan]}`}
                       >
                         {p.jabatan}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <p className="text-gray-700">{p.email}</p>
-                      <p className="text-xs text-gray-500">{p.noHp}</p>
+                    <td className="px-5 py-4">
+                      <p className={c.text}>{p.email}</p>
+                      <p className={`text-xs ${c.muted}`}>{p.noHp}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{p.periode}</td>
-                    <td className="px-4 py-3">
+                    <td className={`whitespace-nowrap px-5 py-4 ${c.text}`}>
+                      {p.periode}
+                    </td>
+                    <td className="px-5 py-4">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          p.status === "Aktif"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-600"
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          p.status === "Aktif" ? c.badgeOn : c.badgeOff
                         }`}
                       >
                         {p.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-center gap-2">
+                    <td className="px-5 py-4">
+                      <div className="flex justify-end gap-1">
                         <button
+                          type="button"
                           onClick={() => bukaEdit(p)}
-                          className="rounded-md bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-200"
+                          aria-label={`Ubah ${p.nama}`}
+                          className={`rounded-full p-2 transition-colors ${c.edit}`}
                         >
-                          Edit
+                          <Pencil className="h-4 w-4" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => setDeleteTarget(p)}
-                          className="rounded-md bg-red-100 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-200"
+                          aria-label={`Hapus ${p.nama}`}
+                          className={`rounded-full p-2 transition-colors ${c.del}`}
                         >
-                          Hapus
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -320,40 +426,45 @@ export default function DataPengurus() {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 text-sm text-gray-600 sm:flex-row">
+        <div
+          className={`flex flex-col items-center justify-between gap-3 border-t px-5 py-4 text-sm sm:flex-row ${c.line} ${c.muted}`}
+        >
           <p>
-            Menampilkan{" "}
-            {filtered.length === 0 ? 0 : startIndex + 1}–
+            Menampilkan {filtered.length === 0 ? 0 : startIndex + 1}–
             {Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)} dari{" "}
             {filtered.length} data
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
+              type="button"
               onClick={() => setPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="rounded-md border border-gray-300 px-3 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Halaman sebelumnya"
+              className={`rounded-full border p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${c.ghost}`}
             >
-              Sebelumnya
+              <ChevronLeft className="h-4 w-4" />
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
+                type="button"
                 onClick={() => setPage(n)}
-                className={`rounded-md border px-3 py-1 ${
-                  n === currentPage
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-300 hover:bg-gray-100"
+                aria-current={n === currentPage ? "page" : undefined}
+                className={`h-9 min-w-9 rounded-full border px-3 text-sm font-medium transition-colors ${
+                  n === currentPage ? c.pageOn : c.ghost
                 }`}
               >
                 {n}
               </button>
             ))}
             <button
+              type="button"
               onClick={() => setPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="rounded-md border border-gray-300 px-3 py-1 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Halaman berikutnya"
+              className={`rounded-full border p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${c.ghost}`}
             >
-              Berikutnya
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -361,14 +472,18 @@ export default function DataPengurus() {
 
       {/* Modal Tambah / Edit */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-lg font-semibold text-gray-800">
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm ${c.backdrop}`}
+        >
+          <div
+            className={`max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl p-7 shadow-2xl ${c.modal}`}
+          >
+            <h2 className="mb-5 text-xl font-semibold">
               {editId !== null ? "Edit Pengurus" : "Tambah Pengurus"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                   Nama Lengkap
                 </label>
                 <input
@@ -376,20 +491,20 @@ export default function DataPengurus() {
                   value={form.nama}
                   onChange={handleChange}
                   required
-                  className={inputClass}
+                  className={`${field} rounded-xl px-4 py-2.5`}
                   placeholder="Masukkan nama lengkap"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                     Jabatan
                   </label>
                   <select
                     name="jabatan"
                     value={form.jabatan}
                     onChange={handleChange}
-                    className={inputClass}
+                    className={`${field} rounded-xl px-4 py-2.5`}
                   >
                     {DAFTAR_JABATAN.map((j) => (
                       <option key={j} value={j}>
@@ -399,7 +514,7 @@ export default function DataPengurus() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                     Periode
                   </label>
                   <input
@@ -407,13 +522,13 @@ export default function DataPengurus() {
                     value={form.periode}
                     onChange={handleChange}
                     required
-                    className={inputClass}
+                    className={`${field} rounded-xl px-4 py-2.5`}
                     placeholder="2025/2026"
                   />
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                   Email
                 </label>
                 <input
@@ -422,13 +537,13 @@ export default function DataPengurus() {
                   value={form.email}
                   onChange={handleChange}
                   required
-                  className={inputClass}
+                  className={`${field} rounded-xl px-4 py-2.5`}
                   placeholder="nama@email.com"
                 />
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                     No. HP
                   </label>
                   <input
@@ -436,36 +551,36 @@ export default function DataPengurus() {
                     value={form.noHp}
                     onChange={handleChange}
                     required
-                    className={inputClass}
+                    className={`${field} rounded-xl px-4 py-2.5`}
                     placeholder="08xxxxxxxxxx"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className={`mb-1.5 block text-sm font-medium ${c.text}`}>
                     Status
                   </label>
                   <select
                     name="status"
                     value={form.status}
                     onChange={handleChange}
-                    className={inputClass}
+                    className={`${field} rounded-xl px-4 py-2.5`}
                   >
                     <option value="Aktif">Aktif</option>
                     <option value="Nonaktif">Nonaktif</option>
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={tutupForm}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className={`rounded-full border px-6 py-2.5 text-sm font-medium transition-colors ${c.ghost}`}
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-colors ${c.primary}`}
                 >
                   {editId !== null ? "Simpan Perubahan" : "Tambah"}
                 </button>
@@ -477,23 +592,29 @@ export default function DataPengurus() {
 
       {/* Modal Konfirmasi Hapus */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-semibold text-gray-800">Hapus Pengurus?</h2>
-            <p className="mt-2 text-sm text-gray-600">
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm ${c.backdrop}`}
+        >
+          <div
+            className={`w-full max-w-sm rounded-3xl p-7 shadow-2xl ${c.modal}`}
+          >
+            <h2 className="text-xl font-semibold">Hapus Pengurus?</h2>
+            <p className={`mt-2 text-sm ${c.text}`}>
               Data <span className="font-semibold">{deleteTarget.nama}</span>{" "}
               akan dihapus dan tidak dapat dikembalikan.
             </p>
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-6 flex justify-end gap-3">
               <button
+                type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className={`rounded-full border px-6 py-2.5 text-sm font-medium transition-colors ${c.ghost}`}
               >
                 Batal
               </button>
               <button
+                type="button"
                 onClick={konfirmasiHapus}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-colors ${c.danger}`}
               >
                 Hapus
               </button>

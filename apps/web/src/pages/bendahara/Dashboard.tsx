@@ -1,4 +1,15 @@
 import { useMemo } from "react";
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  ArrowDownLeft,
+  ArrowUpRight,
+  type LucideIcon,
+} from "lucide-react";
+// NOTE: sesuaikan path import ini dengan lokasi file Anda
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface Transaksi {
   id: number;
@@ -31,6 +42,9 @@ const namaBulan = (key: string) =>
   new Date(`${key}-01`).toLocaleDateString("id-ID", { month: "short" });
 
 export default function Dashboard() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const { saldo, masukBulanIni, keluarBulanIni, grafik } = useMemo(() => {
     const now = new Date();
     const keyNow = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -65,79 +79,156 @@ export default function Dashboard() {
   const maxGrafik = Math.max(...grafik.flatMap((g) => [g.masuk, g.keluar]), 1);
   const terbaru = [...transaksi].sort((a, b) => b.tanggal.localeCompare(a.tanggal)).slice(0, 5);
 
-  const stats = [
-    { label: "Saldo Kas", value: rupiah(saldo), color: "bg-blue-500" },
-    { label: "Pemasukan Bulan Ini", value: rupiah(masukBulanIni), color: "bg-green-500" },
-    { label: "Pengeluaran Bulan Ini", value: rupiah(keluarBulanIni), color: "bg-red-500" },
-    { label: "Iuran Belum Bayar", value: `${iuranBelumBayar} anggota`, color: "bg-amber-500" },
+  const stats: { label: string; value: string; icon: LucideIcon }[] = [
+    { label: "Saldo Kas", value: rupiah(saldo), icon: Wallet },
+    { label: "Pemasukan Bulan Ini", value: rupiah(masukBulanIni), icon: TrendingUp },
+    { label: "Pengeluaran Bulan Ini", value: rupiah(keluarBulanIni), icon: TrendingDown },
+    { label: "Iuran Belum Bayar", value: `${iuranBelumBayar} anggota`, icon: Users },
   ];
 
-  return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Bendahara</h1>
-        <p className="text-gray-500">Ringkasan kondisi keuangan organisasi.</p>
-      </div>
+  // Token warna sesuai tema (sama dengan dashboard admin)
+  const c = isDark
+    ? {
+        card: "border-white/10 bg-white/[0.04]",
+        title: "text-white",
+        text: "text-white/70",
+        muted: "text-white/45",
+        divider: "divide-white/10",
+        grid: "border-white/10",
+        iconWrap: "border-white/10 bg-white/[0.06] text-lime-300",
+        barIn: "bg-lime-300",
+        barOut: "bg-rose-400",
+        dotIn: "bg-lime-300",
+        dotOut: "bg-rose-400",
+        inIcon: "bg-lime-300/15 text-lime-300",
+        outIcon: "bg-rose-400/15 text-rose-300",
+        inText: "text-lime-300",
+        outText: "text-rose-300",
+      }
+    : {
+        card: "border-slate-200 bg-white shadow-sm",
+        title: "text-slate-900",
+        text: "text-slate-600",
+        muted: "text-slate-400",
+        divider: "divide-slate-100",
+        grid: "border-slate-200",
+        iconWrap: "border-lime-200 bg-lime-50 text-lime-700",
+        barIn: "bg-lime-500",
+        barOut: "bg-red-400",
+        dotIn: "bg-lime-500",
+        dotOut: "bg-red-400",
+        inIcon: "bg-lime-100 text-lime-700",
+        outIcon: "bg-red-100 text-red-600",
+        inText: "text-lime-700",
+        outText: "text-red-600",
+      };
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-xl shadow-sm border p-4 flex items-center gap-4">
-            <div className={`${s.color} w-12 h-12 rounded-lg shrink-0`} />
-            <div className="min-w-0">
-              <p className="text-sm text-gray-500">{s.label}</p>
-              <p className="text-lg font-semibold text-gray-800 truncate">{s.value}</p>
+  const card = `rounded-3xl border p-6 ${c.card}`;
+
+  return (
+    <div className="space-y-5">
+      {/* Hero */}
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1d2a16] via-[#121a0e] to-[#0c0f0b] px-6 py-8 text-white sm:px-10 sm:py-10">
+        <div className="pointer-events-none absolute -right-20 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full border-[28px] border-lime-300/[0.06]" />
+        <div className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full bg-lime-300/10 blur-3xl" />
+
+        <h1 className="relative max-w-3xl text-2xl font-semibold tracking-tight sm:text-4xl">
+          Dashboard Bendahara
+        </h1>
+        <p className="relative mt-3 max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg">
+          Ringkasan kondisi keuangan organisasi.
+        </p>
+      </section>
+
+      {/* Statistik */}
+      <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map(({ label, value, icon: Icon }) => (
+          <div key={label} className={`${card} min-w-0`}>
+            <div className="flex items-start justify-between gap-3">
+              <p className={`text-sm font-medium ${c.text}`}>{label}</p>
+              <span
+                className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border ${c.iconWrap}`}
+              >
+                <Icon className="h-5 w-5" />
+              </span>
             </div>
+            <p className={`mt-4 truncate text-2xl font-semibold tracking-tight ${c.title}`} title={value}>
+              {value}
+            </p>
           </div>
         ))}
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section className="grid gap-5 xl:grid-cols-2">
         {/* Grafik sederhana */}
-        <section className="bg-white rounded-xl shadow-sm border p-5">
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">Arus Kas 6 Bulan Terakhir</h2>
-          <div className="flex gap-4 text-xs text-gray-500 mb-4">
-            <span className="flex items-center gap-1"><i className="w-3 h-3 bg-green-500 inline-block rounded-sm" /> Pemasukan</span>
-            <span className="flex items-center gap-1"><i className="w-3 h-3 bg-red-500 inline-block rounded-sm" /> Pengeluaran</span>
+        <div className={card}>
+          <h2 className={`text-lg font-semibold ${c.title}`}>Arus Kas 6 Bulan Terakhir</h2>
+          <div className={`mt-2 flex gap-4 text-xs ${c.muted}`}>
+            <span className="flex items-center gap-1.5">
+              <i className={`inline-block h-2.5 w-2.5 rounded-full ${c.dotIn}`} /> Pemasukan
+            </span>
+            <span className="flex items-center gap-1.5">
+              <i className={`inline-block h-2.5 w-2.5 rounded-full ${c.dotOut}`} /> Pengeluaran
+            </span>
           </div>
-          <div className="flex items-end gap-4 h-48">
+
+          <div className={`mt-5 flex h-52 items-end gap-4 border-b ${c.grid}`}>
             {grafik.map((g) => (
-              <div key={g.bulan} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                <div className="flex items-end gap-1 w-full h-full justify-center">
+              <div key={g.bulan} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
+                <div className="flex h-full w-full items-end justify-center gap-1">
                   <div
-                    className="w-1/3 bg-green-500 rounded-t"
+                    className={`w-1/3 rounded-t-md ${c.barIn}`}
                     style={{ height: `${(g.masuk / maxGrafik) * 100}%` }}
                     title={rupiah(g.masuk)}
                   />
                   <div
-                    className="w-1/3 bg-red-500 rounded-t"
+                    className={`w-1/3 rounded-t-md ${c.barOut}`}
                     style={{ height: `${(g.keluar / maxGrafik) * 100}%` }}
                     title={rupiah(g.keluar)}
                   />
                 </div>
-                <span className="text-xs text-gray-500">{g.bulan}</span>
               </div>
             ))}
           </div>
-        </section>
+          <div className="mt-2 flex gap-4">
+            {grafik.map((g) => (
+              <span key={g.bulan} className={`flex-1 text-center text-xs ${c.muted}`}>
+                {g.bulan}
+              </span>
+            ))}
+          </div>
+        </div>
 
         {/* Transaksi terbaru */}
-        <section className="bg-white rounded-xl shadow-sm border p-5">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Transaksi Terbaru</h2>
-          <ul className="divide-y">
-            {terbaru.map((t) => (
-              <li key={t.id} className="py-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium text-gray-800">{t.keterangan}</p>
-                  <p className="text-xs text-gray-400">{formatTanggal(t.tanggal)}</p>
-                </div>
-                <span className={`font-semibold whitespace-nowrap ${t.jenis === "Pemasukan" ? "text-green-600" : "text-red-600"}`}>
-                  {t.jenis === "Pemasukan" ? "+" : "-"} {rupiah(t.jumlah)}
-                </span>
-              </li>
-            ))}
+        <div className={card}>
+          <h2 className={`text-lg font-semibold ${c.title}`}>Transaksi Terbaru</h2>
+          <ul className={`mt-4 divide-y ${c.divider}`}>
+            {terbaru.map((t) => {
+              const masuk = t.jenis === "Pemasukan";
+              return (
+                <li key={t.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                  <span
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${
+                      masuk ? c.inIcon : c.outIcon
+                    }`}
+                  >
+                    {masuk ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className={`truncate font-medium ${c.title}`}>{t.keterangan}</p>
+                    <p className={`text-xs ${c.muted}`}>{formatTanggal(t.tanggal)}</p>
+                  </div>
+                  <span
+                    className={`whitespace-nowrap font-semibold ${masuk ? c.inText : c.outText}`}
+                  >
+                    {masuk ? "+" : "-"} {rupiah(t.jumlah)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

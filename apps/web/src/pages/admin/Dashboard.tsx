@@ -11,6 +11,8 @@ import {
   MapPin,
   type LucideIcon,
 } from "lucide-react";
+// NOTE: sesuaikan path import ini dengan lokasi file dashboard Anda
+import { useTheme } from "../../contexts/ThemeContext";
 
 /* ---------- Data contoh (ganti dengan data dari API) ---------- */
 
@@ -20,8 +22,6 @@ interface StatCard {
   sub: string;
   badge: string;
   icon: LucideIcon;
-  tone: "emerald" | "amber" | "sky" | "violet";
-  badgeTone: string;
 }
 
 const STATS: StatCard[] = [
@@ -31,8 +31,6 @@ const STATS: StatCard[] = [
     sub: "72 Remaja Putra, 56 Putri",
     badge: "▲ +12% bln ini",
     icon: Users,
-    tone: "emerald",
-    badgeTone: "bg-emerald-50 text-emerald-700",
   },
   {
     label: "Saldo Kas IRMA",
@@ -40,8 +38,6 @@ const STATS: StatCard[] = [
     sub: "Pemasukan bln ini: Rp 3.200.000",
     badge: "Segar & Aman",
     icon: Wallet,
-    tone: "amber",
-    badgeTone: "bg-emerald-50 text-emerald-700",
   },
   {
     label: "Kegiatan Bulan Ini",
@@ -49,8 +45,6 @@ const STATS: StatCard[] = [
     sub: "4 Agenda mendatang",
     badge: "2 Selesai",
     icon: CalendarDays,
-    tone: "sky",
-    badgeTone: "bg-sky-50 text-sky-700",
   },
   {
     label: "Inventaris Pemuda",
@@ -58,17 +52,8 @@ const STATS: StatCard[] = [
     sub: "Sound system, alat hadroh, dll",
     badge: "98% Baik",
     icon: Box,
-    tone: "violet",
-    badgeTone: "bg-slate-100 text-slate-600",
   },
 ];
-
-const TONE: Record<StatCard["tone"], string> = {
-  emerald: "bg-emerald-50 text-emerald-600",
-  amber: "bg-amber-50 text-amber-500",
-  sky: "bg-sky-50 text-sky-600",
-  violet: "bg-violet-50 text-violet-600",
-};
 
 type Category = "Semua" | "Kajian" | "Sosial & Seni";
 
@@ -92,6 +77,8 @@ const ANNOUNCEMENTS = [
   { title: "Pengumpulan Infaq Pembangunan", body: "Kas khusus dibuka sampai akhir bulan." },
 ];
 
+const FILTERS: Category[] = ["Semua", "Kajian", "Sosial & Seni"];
+
 /* ---------- Komponen ---------- */
 
 interface AdminDashboardProps {
@@ -99,50 +86,89 @@ interface AdminDashboardProps {
   onAddCash?: () => void;
 }
 
-export default function Dashboard({
+export default function AdminDashboard({
   onAddActivity,
   onAddCash,
 }: AdminDashboardProps) {
   const [filter, setFilter] = useState<Category>("Semua");
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const filtered = AGENDA.filter(
-    (a) => filter === "Semua" || a.category === filter
+    (a) => filter === "Semua" || a.category === filter,
   );
 
-  console.log("Dashboard ter-render");
+  // Token warna sesuai tema (tidak bergantung pada CSS tema lama)
+  const c = isDark
+    ? {
+        card: "border-white/10 bg-white/[0.04]",
+        title: "text-white",
+        text: "text-white/70",
+        muted: "text-white/45",
+        divider: "divide-white/10",
+        iconWrap: "border-white/10 bg-white/[0.06] text-lime-300",
+        badge: "bg-lime-300/15 text-lime-300",
+        segment: "border-white/10 bg-white/[0.04]",
+        segActive: "bg-lime-300 text-[#10150c]",
+        segIdle: "text-white/60 hover:text-white",
+        dateTile: "border-lime-300/20 bg-lime-300/10 text-lime-300",
+        tag: "bg-white/[0.06] text-white/70",
+        note: "border-white/10 bg-white/[0.03]",
+        noteIcon: "bg-lime-300/15 text-lime-300",
+      }
+    : {
+        card: "border-slate-200 bg-white shadow-sm",
+        title: "text-slate-900",
+        text: "text-slate-600",
+        muted: "text-slate-400",
+        divider: "divide-slate-100",
+        iconWrap: "border-lime-200 bg-lime-50 text-lime-700",
+        badge: "bg-lime-100 text-lime-800",
+        segment: "border-slate-200 bg-slate-50",
+        segActive: "bg-lime-400 text-[#10150c]",
+        segIdle: "text-slate-500 hover:text-slate-800",
+        dateTile: "border-lime-200 bg-lime-50 text-lime-700",
+        tag: "bg-slate-100 text-slate-600",
+        note: "border-slate-200 bg-slate-50",
+        noteIcon: "bg-lime-100 text-lime-700",
+      };
+
+  const card = `rounded-3xl border p-6 ${c.card}`;
 
   return (
-    <div className="space-y-8 bg-slate-50 px-11 py-10">
+    <div className="space-y-5">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-emerald-950 px-11 py-10 text-white shadow-lg">
-        <div className="pointer-events-none absolute -right-16 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full border-[32px] border-white/5" />
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#1d2a16] via-[#121a0e] to-[#0c0f0b] px-6 py-8 text-white sm:px-10 sm:py-10">
+        <div className="pointer-events-none absolute -right-20 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full border-[28px] border-lime-300/[0.06]" />
+        <div className="pointer-events-none absolute -right-10 -top-24 h-64 w-64 rounded-full bg-lime-300/10 blur-3xl" />
 
-        <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-sm font-semibold text-amber-300">
+        <span className="relative inline-flex items-center gap-2 rounded-full border border-lime-300/30 bg-lime-300/10 px-4 py-1.5 text-sm font-medium text-lime-300">
           <Sparkles className="h-4 w-4" />
           Assalamu'alaikum, Akhi & Ukhti
         </span>
 
-        <h2 className="mt-4 text-4xl font-bold tracking-tight">
+        <h2 className="relative mt-4 max-w-3xl text-2xl font-semibold tracking-tight sm:text-4xl">
           Selamat Datang di Portal Pemuda Masjid Baitussalam
         </h2>
-        <p className="mt-3 max-w-3xl text-lg leading-relaxed text-emerald-50/90">
+        <p className="relative mt-3 max-w-3xl text-base leading-relaxed text-white/70 sm:text-lg">
           "Barangsiapa memakmurkan masjid-masjid Allah, sesungguhnya mereka
           termasuk orang-orang yang mendapat petunjuk." Mari terus tingkatkan
           semangat ukhuwah dan ketaqwaan.
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="relative mt-7 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={onAddActivity}
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-6 py-3 font-semibold text-emerald-950 transition-colors hover:bg-amber-400"
+            className="inline-flex items-center gap-2 rounded-full bg-lime-300 px-6 py-3 text-sm font-semibold text-[#10150c] shadow-[0_0_24px_rgba(190,242,100,0.25)] transition-colors hover:bg-lime-200"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
             Tambah Kegiatan Baru
           </button>
           <button
             type="button"
             onClick={onAddCash}
-            className="inline-flex items-center gap-2 rounded-lg border border-emerald-600 bg-emerald-800/60 px-5 py-3 font-semibold text-emerald-50 transition-colors hover:bg-emerald-700"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-lime-300/40 hover:text-lime-300"
           >
             <Plus className="h-4 w-4" />
             Catat Kas Masuk
@@ -151,112 +177,125 @@ export default function Dashboard({
       </section>
 
       {/* Kartu statistik */}
-      <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {STATS.map(({ label, value, sub, badge, badgeTone, icon: Icon, tone }) => (
-          <div
-            key={label}
-            className="rounded-2xl border border-slate-100 bg-white p-7 shadow-sm"
-          >
-            <div className="flex items-start justify-between">
-              <p className="text-[15px] text-slate-600">{label}</p>
-              <div className={`rounded-xl p-3 ${TONE[tone]}`}>
-                <Icon className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-end justify-between gap-3">
-              <p className="text-3xl font-bold leading-tight text-slate-900">
-                {value}
-              </p>
+      <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {STATS.map(({ label, value, sub, badge, icon: Icon }) => (
+          <div key={label} className={`${card} min-w-0`}>
+            <div className="flex items-start justify-between gap-3">
+              <p className={`text-sm font-medium ${c.text}`}>{label}</p>
               <span
-                className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${badgeTone}`}
+                className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border ${c.iconWrap}`}
+              >
+                <Icon className="h-5 w-5" />
+              </span>
+            </div>
+
+            <p
+              className={`mt-4 whitespace-nowrap text-3xl font-semibold tracking-tight ${c.title}`}
+            >
+              {value}
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${c.badge}`}
               >
                 {badge}
               </span>
+              <p className={`min-w-0 text-xs ${c.muted}`}>{sub}</p>
             </div>
-            <p className="mt-2 text-sm text-slate-400">{sub}</p>
           </div>
         ))}
       </section>
 
       {/* Jadwal & Pengumuman */}
-      <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-        <div className="rounded-2xl border border-slate-100 bg-white p-7 shadow-sm">
+      <section className="grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+        <div className={card}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-bold text-slate-900">
+              <h3 className={`text-lg font-semibold ${c.title}`}>
                 Jadwal Kegiatan Terdekat
               </h3>
-              <p className="text-slate-500">
-                Agenda agenda dakwah & sosial IRMA Baitussalam
+              <p className={`mt-0.5 text-sm ${c.muted}`}>
+                Agenda dakwah & sosial IRMA Baitussalam
               </p>
             </div>
-            <div className="flex rounded-xl bg-slate-100 p-1">
-              {(["Semua", "Kajian", "Sosial & Seni"] as Category[]).map((c) => (
+            <div className={`flex rounded-full border p-1 ${c.segment}`}>
+              {FILTERS.map((f) => (
                 <button
-                  key={c}
+                  key={f}
                   type="button"
-                  onClick={() => setFilter(c)}
-                  className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-                    filter === c
-                      ? "bg-white text-emerald-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                  onClick={() => setFilter(f)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                    filter === f ? c.segActive : c.segIdle
                   }`}
                 >
-                  {c}
+                  {f}
                 </button>
               ))}
             </div>
           </div>
 
-          <ul className="mt-6 divide-y divide-slate-100">
+          <ul className={`mt-5 divide-y ${c.divider}`}>
             {filtered.map((a) => (
-              <li key={a.title} className="flex items-center gap-5 py-4">
-                <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-emerald-50 text-emerald-800">
-                  <span className="text-lg font-bold leading-none">
+              <li key={a.title} className="flex items-center gap-4 py-4">
+                <div
+                  className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${c.dateTile}`}
+                >
+                  <span className="text-lg font-semibold leading-none">
                     {a.date.split(" ")[0]}
                   </span>
-                  <span className="text-xs">{a.date.split(" ")[1]}</span>
+                  <span className="mt-0.5 text-[11px]">
+                    {a.date.split(" ")[1]}
+                  </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-slate-900">{a.title}</p>
-                  <p className="mt-1 flex flex-wrap items-center gap-x-4 text-sm text-slate-500">
-                    <span className="inline-flex items-center gap-1">
+                  <p className={`truncate font-medium ${c.title}`}>{a.title}</p>
+                  <p
+                    className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ${c.muted}`}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
                       <Clock className="h-4 w-4" /> {a.time}
                     </span>
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5">
                       <MapPin className="h-4 w-4" /> {a.place}
                     </span>
                   </p>
                 </div>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                <span
+                  className={`hidden shrink-0 rounded-full px-3 py-1 text-xs font-medium sm:inline-block ${c.tag}`}
+                >
                   {a.category}
                 </span>
               </li>
             ))}
             {filtered.length === 0 && (
-              <li className="py-8 text-center text-slate-400">
+              <li className={`py-8 text-center text-sm ${c.muted}`}>
                 Belum ada agenda di kategori ini.
               </li>
             )}
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-slate-100 bg-white p-7 shadow-sm">
+        <div className={card}>
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-amber-50 p-2.5 text-amber-500">
+            <span
+              className={`grid h-10 w-10 place-items-center rounded-full ${c.noteIcon}`}
+            >
               <Megaphone className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900">Pengumuman & Info</h3>
+            </span>
+            <h3 className={`text-lg font-semibold ${c.title}`}>
+              Pengumuman & Info
+            </h3>
           </div>
 
           <div className="mt-5 space-y-3">
             {ANNOUNCEMENTS.map((n) => (
               <div
                 key={n.title}
-                className="rounded-xl border border-amber-100 bg-amber-50/60 p-4"
+                className={`rounded-2xl border p-4 ${c.note}`}
               >
-                <p className="font-semibold text-slate-900">{n.title}</p>
-                <p className="mt-1 text-sm text-slate-600">{n.body}</p>
+                <p className={`font-medium ${c.title}`}>{n.title}</p>
+                <p className={`mt-1 text-sm ${c.text}`}>{n.body}</p>
               </div>
             ))}
           </div>
