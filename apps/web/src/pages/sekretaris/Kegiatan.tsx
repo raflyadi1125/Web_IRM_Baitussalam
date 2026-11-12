@@ -2,72 +2,43 @@ import { type FormEvent, useMemo, useState } from "react";
 import { Search, Plus, Save, Pencil, Trash2 } from "lucide-react";
 // NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
+import {
+  DAFTAR_STATUS,
+  kegiatan,
+  useKegiatan,
+  type Kegiatan,
+  type KegiatanInput,
+  type StatusKegiatan,
+} from "../../data/kegiatan";
 
-type Status = "Akan Datang" | "Berlangsung" | "Selesai";
-
-interface Kegiatan {
-  id: number;
-  judul: string;
-  deskripsi: string;
-  tanggal: string; // ISO date
-  waktu: string;
-  lokasi: string;
-  status: Status;
-}
-
-// TODO: ganti dengan data dari API
-const dataAwal: Kegiatan[] = [
-  {
-    id: 1,
-    judul: "Rapat Bulanan Anggota",
-    deskripsi: "Evaluasi program kerja bulan lalu dan perencanaan bulan berikutnya.",
-    tanggal: "2026-11-12",
-    waktu: "19:00",
-    lokasi: "Aula Utama",
-    status: "Akan Datang",
-  },
-  {
-    id: 2,
-    judul: "Bakti Sosial",
-    deskripsi: "Pembagian bantuan kepada warga sekitar.",
-    tanggal: "2026-11-20",
-    waktu: "08:00",
-    lokasi: "Desa Cibiru",
-    status: "Akan Datang",
-  },
-  {
-    id: 3,
-    judul: "Gotong Royong",
-    deskripsi: "Membersihkan lingkungan sekretariat bersama.",
-    tanggal: "2026-10-25",
-    waktu: "07:30",
-    lokasi: "Sekretariat",
-    status: "Selesai",
-  },
-];
-
-const STATUS: Status[] = ["Akan Datang", "Berlangsung", "Selesai"];
-
+// "T00:00:00" supaya tanggal dibaca sebagai waktu lokal (bukan UTC)
 const formatTanggal = (iso: string) =>
-  new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  new Date(`${iso}T00:00:00`).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
-const formKosong = {
-  judul: "",
+const formKosong: KegiatanInput = {
+  nama: "",
   deskripsi: "",
   tanggal: "",
   waktu: "",
   lokasi: "",
-  status: "Akan Datang" as Status,
+  penanggungJawab: "",
+  status: "Akan Datang",
 };
 
-export default function Kegiatan() {
-  const [data, setData] = useState<Kegiatan[]>(dataAwal);
-  const [form, setForm] = useState(formKosong);
+export default function KegiatanSekretaris() {
+  // Data diambil dari kegiatan.ts (sama persis dengan halaman admin)
+  const data = useKegiatan();
+
+  const [form, setForm] = useState<KegiatanInput>(formKosong);
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"Semua" | Status>("Semua");
+  const [filter, setFilter] = useState<"Semua" | StatusKegiatan>("Semua");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -77,7 +48,7 @@ export default function Kegiatan() {
         .filter(
           (k) =>
             (filter === "Semua" || k.status === filter) &&
-            k.judul.toLowerCase().includes(search.toLowerCase())
+            k.nama.toLowerCase().includes(search.toLowerCase())
         )
         .sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
     [data, search, filter]
@@ -92,32 +63,31 @@ export default function Kegiatan() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!form.judul.trim()) return setError("Judul kegiatan wajib diisi.");
+    if (!form.nama.trim()) return setError("Judul kegiatan wajib diisi.");
     if (!form.tanggal) return setError("Tanggal wajib diisi.");
     if (!form.lokasi.trim()) return setError("Lokasi wajib diisi.");
+    if (!form.penanggungJawab.trim()) return setError("Penanggung jawab wajib diisi.");
 
-    const payload = { ...form, judul: form.judul.trim(), lokasi: form.lokasi.trim(), deskripsi: form.deskripsi.trim() };
+    const payload: KegiatanInput = {
+      ...form,
+      nama: form.nama.trim(),
+      lokasi: form.lokasi.trim(),
+      penanggungJawab: form.penanggungJawab.trim(),
+      deskripsi: form.deskripsi.trim(),
+    };
 
     if (editId !== null) {
-      // TODO: panggil API update
-      setData((prev) => prev.map((k) => (k.id === editId ? { ...k, ...payload } : k)));
+      kegiatan.update(editId, payload);
     } else {
-      // TODO: panggil API create, pakai id dari server
-      setData((prev) => [...prev, { id: Date.now(), ...payload }]);
+      kegiatan.add(payload);
     }
     tutupForm();
   };
 
   const handleEdit = (k: Kegiatan) => {
-    setEditId(k.id);
-    setForm({
-      judul: k.judul,
-      deskripsi: k.deskripsi,
-      tanggal: k.tanggal,
-      waktu: k.waktu,
-      lokasi: k.lokasi,
-      status: k.status,
-    });
+    const { id, ...rest } = k;
+    setEditId(id);
+    setForm(rest);
     setShowForm(true);
     setError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -125,8 +95,7 @@ export default function Kegiatan() {
 
   const handleDelete = (id: number) => {
     if (!window.confirm("Hapus kegiatan ini?")) return;
-    // TODO: panggil API hapus
-    setData((prev) => prev.filter((k) => k.id !== id));
+    kegiatan.remove(id);
     if (editId === id) tutupForm();
   };
 
@@ -153,7 +122,8 @@ export default function Kegiatan() {
           "Akan Datang": "bg-sky-300/15 text-sky-300",
           Berlangsung: "bg-lime-300/15 text-lime-300",
           Selesai: "bg-white/[0.08] text-white/50",
-        } as Record<Status, string>,
+          Dibatalkan: "bg-red-400/15 text-red-300",
+        } as Record<StatusKegiatan, string>,
         actEdit: "text-lime-300 hover:bg-lime-300/10",
         actDel: "text-rose-300 hover:bg-rose-400/10",
       }
@@ -178,7 +148,8 @@ export default function Kegiatan() {
           "Akan Datang": "bg-sky-100 text-sky-700",
           Berlangsung: "bg-lime-100 text-lime-800",
           Selesai: "bg-slate-100 text-slate-500",
-        } as Record<Status, string>,
+          Dibatalkan: "bg-red-100 text-red-600",
+        } as Record<StatusKegiatan, string>,
         actEdit: "text-lime-700 hover:bg-lime-50",
         actDel: "text-red-600 hover:bg-red-50",
       };
@@ -227,8 +198,8 @@ export default function Kegiatan() {
               </label>
               <input
                 id="kg-judul"
-                value={form.judul}
-                onChange={(e) => setForm({ ...form, judul: e.target.value })}
+                value={form.nama}
+                onChange={(e) => setForm({ ...form, nama: e.target.value })}
                 className={inputClass}
               />
             </div>
@@ -280,16 +251,27 @@ export default function Kegiatan() {
               />
             </div>
             <div>
+              <label htmlFor="kg-pj" className={labelClass}>
+                Penanggung Jawab
+              </label>
+              <input
+                id="kg-pj"
+                value={form.penanggungJawab}
+                onChange={(e) => setForm({ ...form, penanggungJawab: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+            <div className="md:col-span-2">
               <label htmlFor="kg-status" className={labelClass}>
                 Status
               </label>
               <select
                 id="kg-status"
                 value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value as Status })}
+                onChange={(e) => setForm({ ...form, status: e.target.value as StatusKegiatan })}
                 className={inputClass}
               >
-                {STATUS.map((s) => (
+                {DAFTAR_STATUS.map((s) => (
                   <option key={s} className={c.option}>
                     {s}
                   </option>
@@ -336,7 +318,7 @@ export default function Kegiatan() {
           />
         </div>
         <div className={`flex flex-wrap rounded-full border p-1 ${c.segment}`}>
-          {(["Semua", ...STATUS] as const).map((opt) => (
+          {(["Semua", ...DAFTAR_STATUS] as const).map((opt) => (
             <button
               key={opt}
               type="button"
@@ -375,14 +357,17 @@ export default function Kegiatan() {
                 hasil.map((k) => (
                   <tr key={k.id} className={`transition-colors ${c.row}`}>
                     <td className="px-5 py-4">
-                      <p className={`font-medium ${c.title}`}>{k.judul}</p>
+                      <p className={`font-medium ${c.title}`}>{k.nama}</p>
                       {k.deskripsi && <p className={`line-clamp-1 text-xs ${c.muted}`}>{k.deskripsi}</p>}
                     </td>
                     <td className={`whitespace-nowrap px-5 py-4 ${c.text}`}>
                       {formatTanggal(k.tanggal)}
                       {k.waktu && <span className={c.muted}> • {k.waktu}</span>}
                     </td>
-                    <td className={`px-5 py-4 ${c.text}`}>{k.lokasi}</td>
+                    <td className={`px-5 py-4 ${c.text}`}>
+                      <p>{k.lokasi}</p>
+                      <p className={`text-xs ${c.muted}`}>PJ: {k.penanggungJawab}</p>
+                    </td>
                     <td className="px-5 py-4">
                       <span
                         className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${c.status[k.status]}`}
@@ -394,7 +379,7 @@ export default function Kegiatan() {
                       <button
                         type="button"
                         onClick={() => handleEdit(k)}
-                        aria-label={`Edit ${k.judul}`}
+                        aria-label={`Edit ${k.nama}`}
                         className={`mr-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${c.actEdit}`}
                       >
                         <Pencil className="h-3.5 w-3.5" /> Edit
@@ -402,7 +387,7 @@ export default function Kegiatan() {
                       <button
                         type="button"
                         onClick={() => handleDelete(k.id)}
-                        aria-label={`Hapus ${k.judul}`}
+                        aria-label={`Hapus ${k.nama}`}
                         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${c.actDel}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Hapus

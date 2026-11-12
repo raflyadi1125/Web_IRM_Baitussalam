@@ -1,39 +1,50 @@
-import { type FormEvent, useMemo, useState } from "react";
+import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
 import { Search, Wallet, TrendingUp, TrendingDown, Pencil, Trash2, Plus, Save } from "lucide-react";
 // NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
-
-type Jenis = "Pemasukan" | "Pengeluaran";
-
-interface Transaksi {
-  id: number;
-  tanggal: string; // ISO date
-  keterangan: string;
-  jenis: Jenis;
-  jumlah: number;
-}
-
-// TODO: ganti dengan data dari API
-const dataAwal: Transaksi[] = [
-  { id: 1, tanggal: "2026-11-05", keterangan: "Iuran anggota - November", jenis: "Pemasukan", jumlah: 1500000 },
-  { id: 2, tanggal: "2026-11-04", keterangan: "Konsumsi rapat", jenis: "Pengeluaran", jumlah: 350000 },
-  { id: 3, tanggal: "2026-11-02", keterangan: "Donasi sponsor", jenis: "Pemasukan", jumlah: 2000000 },
-  { id: 4, tanggal: "2026-10-28", keterangan: "Sewa aula", jenis: "Pengeluaran", jumlah: 800000 },
-];
+import {
+  KATEGORI,
+  keuangan,
+  useTransaksi,
+  type Jenis,
+  type Transaksi,
+} from "../../data/keuangan";
 
 const rupiah = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 
+// "T00:00:00" supaya tanggal dibaca sebagai waktu lokal (bukan UTC)
 const formatTanggal = (iso: string) =>
-  new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  new Date(`${iso}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
-const hariIni = () => new Date().toISOString().slice(0, 10);
+// Tanggal hari ini (zona waktu lokal). toISOString() memakai UTC sehingga dini hari WIB bisa terbaca kemarin.
+const hariIni = () => {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
 
-const formKosong = { tanggal: hariIni(), keterangan: "", jenis: "Pemasukan" as Jenis, jumlah: "" };
+interface FormState {
+  tanggal: string;
+  keterangan: string;
+  jenis: Jenis;
+  kategori: string;
+  jumlah: string;
+}
 
-export default function Keuangan() {
-  const [data, setData] = useState<Transaksi[]>(dataAwal);
-  const [form, setForm] = useState(formKosong);
+const formKosong = (): FormState => ({
+  tanggal: hariIni(),
+  keterangan: "",
+  jenis: "Pemasukan",
+  kategori: KATEGORI.Pemasukan[0],
+  jumlah: "",
+});
+
+export default function KeuanganBendahara() {
+  // Data diambil dari keuangan.ts (sama persis dengan DashboardBendahara dan halaman admin)
+  const data = useTransaksi();
+
+  const [form, setForm] = useState<FormState>(formKosong);
   const [editId, setEditId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -49,12 +60,18 @@ export default function Keuangan() {
             (filter === "Semua" || t.jenis === filter) &&
             t.keterangan.toLowerCase().includes(search.toLowerCase())
         )
-        .sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
+        .sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.id - a.id),
     [data, search, filter]
   );
 
   const totalMasuk = data.filter((t) => t.jenis === "Pemasukan").reduce((s, t) => s + t.jumlah, 0);
   const totalKeluar = data.filter((t) => t.jenis === "Pengeluaran").reduce((s, t) => s + t.jumlah, 0);
+
+  const handleJenisChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const jenis = e.target.value as Jenis;
+    // Reset kategori ke kategori pertama dari jenis yang dipilih
+    setForm((prev) => ({ ...prev, jenis, kategori: KATEGORI[jenis][0] }));
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -65,38 +82,48 @@ export default function Keuangan() {
     if (!jumlah || jumlah <= 0) return setError("Jumlah harus lebih dari 0.");
     setError("");
 
+    const payload = {
+      tanggal: form.tanggal,
+      keterangan: form.keterangan.trim(),
+      kategori: form.kategori,
+      jenis: form.jenis,
+      jumlah,
+    };
+
     if (editId !== null) {
-      setData((prev) =>
-        prev.map((t) => (t.id === editId ? { ...t, ...form, keterangan: form.keterangan.trim(), jumlah } : t))
-      );
+      keuangan.update(editId, payload);
     } else {
-      // TODO: kirim ke API, lalu pakai id dari server
-      setData((prev) => [...prev, { id: Date.now(), ...form, keterangan: form.keterangan.trim(), jumlah }]);
+      keuangan.add(payload);
     }
-    setForm({ ...formKosong, tanggal: hariIni() });
+    setForm(formKosong());
     setEditId(null);
   };
 
   const handleEdit = (t: Transaksi) => {
     setEditId(t.id);
-    setForm({ tanggal: t.tanggal, keterangan: t.keterangan, jenis: t.jenis, jumlah: String(t.jumlah) });
+    setForm({
+      tanggal: t.tanggal,
+      keterangan: t.keterangan,
+      jenis: t.jenis,
+      kategori: t.kategori,
+      jumlah: String(t.jumlah),
+    });
     setError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = (id: number) => {
     if (!window.confirm("Hapus transaksi ini?")) return;
-    // TODO: panggil API hapus
-    setData((prev) => prev.filter((t) => t.id !== id));
+    keuangan.remove(id);
     if (editId === id) {
       setEditId(null);
-      setForm({ ...formKosong, tanggal: hariIni() });
+      setForm(formKosong());
     }
   };
 
   const batalEdit = () => {
     setEditId(null);
-    setForm({ ...formKosong, tanggal: hariIni() });
+    setForm(formKosong());
     setError("");
   };
 
@@ -218,27 +245,31 @@ export default function Keuangan() {
             <select
               id="keu-jenis"
               value={form.jenis}
-              onChange={(e) => setForm({ ...form, jenis: e.target.value as Jenis })}
+              onChange={handleJenisChange}
               className={inputClass}
             >
               <option className={c.option}>Pemasukan</option>
               <option className={c.option}>Pengeluaran</option>
             </select>
           </div>
-          <div className="md:col-span-2">
-            <label htmlFor="keu-keterangan" className={labelClass}>
-              Keterangan
+          <div>
+            <label htmlFor="keu-kategori" className={labelClass}>
+              Kategori
             </label>
-            <input
-              id="keu-keterangan"
-              type="text"
-              value={form.keterangan}
-              onChange={(e) => setForm({ ...form, keterangan: e.target.value })}
-              placeholder="Contoh: Iuran anggota"
+            <select
+              id="keu-kategori"
+              value={form.kategori}
+              onChange={(e) => setForm({ ...form, kategori: e.target.value })}
               className={inputClass}
-            />
+            >
+              {KATEGORI[form.jenis].map((k) => (
+                <option key={k} className={c.option}>
+                  {k}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className="md:col-span-2">
+          <div>
             <label htmlFor="keu-jumlah" className={labelClass}>
               Jumlah (Rp)
             </label>
@@ -249,6 +280,19 @@ export default function Keuangan() {
               value={form.jumlah}
               onChange={(e) => setForm({ ...form, jumlah: e.target.value })}
               placeholder="0"
+              className={inputClass}
+            />
+          </div>
+          <div className="md:col-span-4">
+            <label htmlFor="keu-keterangan" className={labelClass}>
+              Keterangan
+            </label>
+            <input
+              id="keu-keterangan"
+              type="text"
+              value={form.keterangan}
+              onChange={(e) => setForm({ ...form, keterangan: e.target.value })}
+              placeholder="Contoh: Iuran anggota"
               className={inputClass}
             />
           </div>
@@ -334,7 +378,10 @@ export default function Keuangan() {
                   return (
                     <tr key={t.id} className={`transition-colors ${c.row}`}>
                       <td className={`whitespace-nowrap px-5 py-4 ${c.text}`}>{formatTanggal(t.tanggal)}</td>
-                      <td className={`px-5 py-4 font-medium ${c.title}`}>{t.keterangan}</td>
+                      <td className="px-5 py-4">
+                        <p className={`font-medium ${c.title}`}>{t.keterangan}</p>
+                        <p className={`text-xs ${c.muted}`}>{t.kategori}</p>
+                      </td>
                       <td className="px-5 py-4">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-semibold ${

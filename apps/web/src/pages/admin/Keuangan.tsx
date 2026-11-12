@@ -13,21 +13,17 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-// NOTE: sesuaikan path import ini dengan lokasi file dashboard Anda
+// NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
+import {
+  KATEGORI,
+  keuangan,
+  useTransaksi,
+  type Jenis,
+  type Transaksi,
+} from "../../data/keuangan";
 
 // ===================== Types =====================
-type Jenis = "Pemasukan" | "Pengeluaran";
-
-interface Transaksi {
-  id: number;
-  tanggal: string; // YYYY-MM-DD
-  keterangan: string;
-  kategori: string;
-  jenis: Jenis;
-  jumlah: number;
-}
-
 interface TransaksiForm {
   tanggal: string;
   keterangan: string;
@@ -37,11 +33,6 @@ interface TransaksiForm {
 }
 
 // ===================== Constants =====================
-const KATEGORI: Record<Jenis, string[]> = {
-  Pemasukan: ["Iuran Anggota", "Donasi", "Sponsor", "Lainnya"],
-  Pengeluaran: ["Operasional", "Kegiatan", "Konsumsi", "Perlengkapan", "Lainnya"],
-};
-
 const FILTER_JENIS: readonly (Jenis | "Semua")[] = ["Semua", "Pemasukan", "Pengeluaran"];
 
 const ITEMS_PER_PAGE = 8;
@@ -54,22 +45,8 @@ const FORM_KOSONG: TransaksiForm = {
   jumlah: "",
 };
 
-// Ganti dengan data dari API/backend Anda.
-const DATA_AWAL: Transaksi[] = [
-  { id: 1, tanggal: "2026-11-01", keterangan: "Iuran anggota bulan November", kategori: "Iuran Anggota", jenis: "Pemasukan", jumlah: 2500000 },
-  { id: 2, tanggal: "2026-11-02", keterangan: "Konsumsi rapat bulanan", kategori: "Konsumsi", jenis: "Pengeluaran", jumlah: 350000 },
-  { id: 3, tanggal: "2026-11-03", keterangan: "Donasi dari alumni", kategori: "Donasi", jenis: "Pemasukan", jumlah: 1500000 },
-  { id: 4, tanggal: "2026-11-04", keterangan: "Cetak banner kegiatan", kategori: "Perlengkapan", jenis: "Pengeluaran", jumlah: 275000 },
-  { id: 5, tanggal: "2026-10-28", keterangan: "Sponsor seminar literasi digital", kategori: "Sponsor", jenis: "Pemasukan", jumlah: 3000000 },
-  { id: 6, tanggal: "2026-10-25", keterangan: "Sewa gedung seminar", kategori: "Kegiatan", jenis: "Pengeluaran", jumlah: 1200000 },
-  { id: 7, tanggal: "2026-10-20", keterangan: "Biaya listrik dan internet sekretariat", kategori: "Operasional", jenis: "Pengeluaran", jumlah: 450000 },
-  { id: 8, tanggal: "2026-10-01", keterangan: "Iuran anggota bulan Oktober", kategori: "Iuran Anggota", jenis: "Pemasukan", jumlah: 2400000 },
-  { id: 9, tanggal: "2026-10-12", keterangan: "Alat tulis dan perlengkapan", kategori: "Perlengkapan", jenis: "Pengeluaran", jumlah: 180000 },
-  { id: 10, tanggal: "2026-09-30", keterangan: "Iuran anggota bulan September", kategori: "Iuran Anggota", jenis: "Pemasukan", jumlah: 2300000 },
-];
-
 // ===================== Token warna sesuai tema =====================
-// Pola yang sama dengan AdminDashboard: gelap = kartu kaca + aksen lime-300,
+// Pola yang sama dengan DashboardAdmin: gelap = kartu kaca + aksen lime-300,
 // terang = kartu putih + aksen lime-400/700.
 const DARK = {
   panel: "rounded-3xl border border-white/10 bg-white/[0.04] p-6",
@@ -433,10 +410,12 @@ function ChartLegend({ series }: { series: BarSeries[] }) {
 }
 
 // ===================== Component =====================
-export default function Keuangan() {
+export default function KeuanganAdmin() {
   const c = useC();
 
-  const [data, setData] = useState<Transaksi[]>(DATA_AWAL);
+  // Data diambil dari keuangan.ts (sama persis dengan DashboardAdmin)
+  const data = useTransaksi();
+
   const [search, setSearch] = useState<string>("");
   const [filterJenis, setFilterJenis] = useState<Jenis | "Semua">("Semua");
   const [filterBulan, setFilterBulan] = useState<string>(""); // YYYY-MM
@@ -563,17 +542,16 @@ export default function Keuangan() {
     };
 
     if (editId !== null) {
-      setData((prev) => prev.map((t) => (t.id === editId ? { ...t, ...payload } : t)));
+      keuangan.update(editId, payload);
     } else {
-      const idBaru = data.length ? Math.max(...data.map((t) => t.id)) + 1 : 1;
-      setData((prev) => [...prev, { id: idBaru, ...payload }]);
+      keuangan.add(payload);
     }
     tutupForm();
   };
 
   const konfirmasiHapus = () => {
     if (!deleteTarget) return;
-    setData((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+    keuangan.remove(deleteTarget.id);
     setDeleteTarget(null);
   };
 

@@ -15,33 +15,18 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react";
-// NOTE: sesuaikan path import ini dengan lokasi file halaman Anda
+// NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
-
-// ===================== Types =====================
-type StatusKegiatan = "Akan Datang" | "Berlangsung" | "Selesai" | "Dibatalkan";
-
-interface Kegiatan {
-  id: number;
-  nama: string;
-  tanggal: string; // YYYY-MM-DD
-  waktu: string; // HH:mm
-  lokasi: string;
-  penanggungJawab: string;
-  deskripsi: string;
-  status: StatusKegiatan;
-}
-
-type KegiatanForm = Omit<Kegiatan, "id">;
+import {
+  DAFTAR_STATUS,
+  kegiatan,
+  useKegiatan,
+  type Kegiatan,
+  type KegiatanInput,
+  type StatusKegiatan,
+} from "../../data/kegiatan";
 
 // ===================== Constants =====================
-const DAFTAR_STATUS: StatusKegiatan[] = [
-  "Akan Datang",
-  "Berlangsung",
-  "Selesai",
-  "Dibatalkan",
-];
-
 const IKON_STATUS: Record<StatusKegiatan, LucideIcon> = {
   "Akan Datang": CalendarClock,
   Berlangsung: Radio,
@@ -49,7 +34,7 @@ const IKON_STATUS: Record<StatusKegiatan, LucideIcon> = {
   Dibatalkan: XCircle,
 };
 
-const FORM_KOSONG: KegiatanForm = {
+const FORM_KOSONG: KegiatanInput = {
   nama: "",
   tanggal: "",
   waktu: "08:00",
@@ -58,14 +43,6 @@ const FORM_KOSONG: KegiatanForm = {
   deskripsi: "",
   status: "Akan Datang",
 };
-
-const DATA_AWAL: Kegiatan[] = [
-  { id: 1, nama: "Rapat Evaluasi Bulanan", tanggal: "2026-11-10", waktu: "19:30", lokasi: "Aula Utama", penanggungJawab: "Budi Santoso", deskripsi: "Evaluasi program kerja bulan Oktober dan perencanaan bulan berikutnya.", status: "Akan Datang" },
-  { id: 2, nama: "Bakti Sosial Lingkungan", tanggal: "2026-11-15", waktu: "07:00", lokasi: "Taman Kota", penanggungJawab: "Rizky Pratama", deskripsi: "Kegiatan bersih-bersih taman kota bersama warga sekitar.", status: "Akan Datang" },
-  { id: 3, nama: "Pelatihan Kepemimpinan", tanggal: "2026-11-06", waktu: "09:00", lokasi: "Ruang Serbaguna", penanggungJawab: "Ahmad Fauzi", deskripsi: "Pelatihan dasar kepemimpinan untuk anggota baru.", status: "Berlangsung" },
-  { id: 4, nama: "Seminar Literasi Digital", tanggal: "2026-10-20", waktu: "13:00", lokasi: "Gedung A Lt. 2", penanggungJawab: "Siti Nurhaliza", deskripsi: "Seminar tentang keamanan dan etika bermedia digital.", status: "Selesai" },
-  { id: 5, nama: "Turnamen Futsal Antar Anggota", tanggal: "2026-10-05", waktu: "15:00", lokasi: "Lapangan Futsal", penanggungJawab: "Dimas Saputra", deskripsi: "Turnamen persahabatan antar anggota.", status: "Dibatalkan" },
-];
 
 // ===================== Helpers =====================
 const BADGE_STATUS_DARK: Record<StatusKegiatan, string> = {
@@ -91,14 +68,16 @@ const formatTanggal = (tanggal: string): string =>
   });
 
 // ===================== Component =====================
-export default function Kegiatan() {
-  const [data, setData] = useState<Kegiatan[]>(DATA_AWAL);
+export default function KegiatanAdmin() {
+  // Data diambil dari kegiatan.ts (sama persis dengan DashboardAdmin)
+  const data = useKegiatan();
+
   const [search, setSearch] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<StatusKegiatan | "Semua">("Semua");
 
   const [showForm, setShowForm] = useState<boolean>(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState<KegiatanForm>(FORM_KOSONG);
+  const [form, setForm] = useState<KegiatanInput>(FORM_KOSONG);
   const [deleteTarget, setDeleteTarget] = useState<Kegiatan | null>(null);
 
   const { theme } = useTheme();
@@ -192,17 +171,16 @@ export default function Kegiatan() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (editId !== null) {
-      setData((prev) => prev.map((k) => (k.id === editId ? { ...k, ...form } : k)));
+      kegiatan.update(editId, form);
     } else {
-      const idBaru = data.length ? Math.max(...data.map((k) => k.id)) + 1 : 1;
-      setData((prev) => [...prev, { id: idBaru, ...form }]);
+      kegiatan.add(form);
     }
     tutupForm();
   };
 
   const konfirmasiHapus = () => {
     if (!deleteTarget) return;
-    setData((prev) => prev.filter((k) => k.id !== deleteTarget.id));
+    kegiatan.remove(deleteTarget.id);
     setDeleteTarget(null);
   };
 

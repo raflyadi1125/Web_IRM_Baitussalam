@@ -5,20 +5,12 @@ import {
   FileText,
   MapPin,
   Megaphone,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 // NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
-
-type StatusKegiatan = "Akan Datang" | "Berlangsung" | "Selesai";
-
-interface Kegiatan {
-  id: number;
-  judul: string;
-  tanggal: string; // ISO date
-  lokasi: string;
-  status: StatusKegiatan;
-}
+import { useKegiatan, type StatusKegiatan } from "../../data/kegiatan";
 
 interface Pengumuman {
   id: number;
@@ -35,13 +27,6 @@ interface Laporan {
 }
 
 // TODO: ganti dengan data dari API
-const kegiatan: Kegiatan[] = [
-  { id: 1, judul: "Rapat Bulanan Anggota", tanggal: "2026-11-12", lokasi: "Aula Utama", status: "Akan Datang" },
-  { id: 2, judul: "Bakti Sosial", tanggal: "2026-11-20", lokasi: "Desa Cibiru", status: "Akan Datang" },
-  { id: 3, judul: "Pelatihan Kepemimpinan", tanggal: "2026-11-06", lokasi: "Ruang Seminar", status: "Berlangsung" },
-  { id: 4, judul: "Gotong Royong", tanggal: "2026-10-25", lokasi: "Sekretariat", status: "Selesai" },
-];
-
 const pengumuman: Pengumuman[] = [
   { id: 1, judul: "Jadwal Rapat Bulan November", tanggal: "2026-11-05", kategori: "Kegiatan" },
   { id: 2, judul: "Pembaruan Tata Tertib Organisasi", tanggal: "2026-10-28", kategori: "Umum" },
@@ -80,6 +65,7 @@ function useTokens() {
           "Akan Datang": "bg-lime-300/15 text-lime-300",
           Berlangsung: "bg-amber-300/15 text-amber-300",
           Selesai: "bg-white/[0.08] text-white/50",
+          Dibatalkan: "bg-red-400/15 text-red-300",
         } as Record<StatusKegiatan, string>,
         laporan: {
           Final: "bg-lime-300/15 text-lime-300",
@@ -100,6 +86,7 @@ function useTokens() {
           "Akan Datang": "bg-lime-100 text-lime-800",
           Berlangsung: "bg-amber-100 text-amber-800",
           Selesai: "bg-slate-100 text-slate-500",
+          Dibatalkan: "bg-red-100 text-red-600",
         } as Record<StatusKegiatan, string>,
         laporan: {
           Final: "bg-lime-100 text-lime-800",
@@ -175,15 +162,18 @@ function Empty({ text }: { text: string }) {
 
 /* ---------- Halaman ---------- */
 
-export default function Dashboard() {
+export default function DashboardSekretaris() {
   const c = useTokens();
+
+  // Data kegiatan diambil dari kegiatan.ts (sama persis dengan halaman Kegiatan)
+  const semuaKegiatan = useKegiatan();
 
   const stats = useMemo(
     () => [
-      { label: "Total Kegiatan", value: kegiatan.length, icon: CalendarDays },
+      { label: "Total Kegiatan", value: semuaKegiatan.length, icon: CalendarDays },
       {
         label: "Kegiatan Mendatang",
-        value: kegiatan.filter((k) => k.status === "Akan Datang").length,
+        value: semuaKegiatan.filter((k) => k.status === "Akan Datang").length,
         icon: CalendarClock,
       },
       { label: "Pengumuman", value: pengumuman.length, icon: Megaphone },
@@ -193,15 +183,15 @@ export default function Dashboard() {
         icon: FileText,
       },
     ],
-    []
+    [semuaKegiatan]
   );
 
   const mendatang = useMemo(
     () =>
-      kegiatan
-        .filter((k) => k.status !== "Selesai")
-        .sort((a, b) => a.tanggal.localeCompare(b.tanggal)),
-    []
+      semuaKegiatan
+        .filter((k) => k.status === "Akan Datang" || k.status === "Berlangsung")
+        .sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.waktu.localeCompare(b.waktu)),
+    [semuaKegiatan]
   );
   const pengumumanTerbaru = useMemo(
     () => [...pengumuman].sort((a, b) => b.tanggal.localeCompare(a.tanggal)).slice(0, 5),
@@ -249,7 +239,7 @@ export default function Dashboard() {
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={`font-medium ${c.title}`}>{k.judul}</p>
+                      <p className={`font-medium ${c.title}`}>{k.nama}</p>
                       <Badge className={c.kegiatan[k.status]}>{k.status}</Badge>
                     </div>
                     <p className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs ${c.muted}`}>
@@ -260,6 +250,10 @@ export default function Dashboard() {
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                         {k.lokasi}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
+                        {k.penanggungJawab}
                       </span>
                     </p>
                   </div>

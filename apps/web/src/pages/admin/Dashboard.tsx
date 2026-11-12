@@ -9,14 +9,23 @@ import {
   Megaphone,
   Clock,
   MapPin,
+  UserRound,
   X,
   CheckCircle2,
   type LucideIcon,
 } from "lucide-react";
-// NOTE: sesuaikan path import ini dengan lokasi file dashboard Anda
+// NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
+import { KATEGORI, keuangan, ringkasan, useTransaksi, type Jenis } from "../../data/keuangan";
+import {
+  DAFTAR_STATUS,
+  kegiatan,
+  useKegiatan,
+  type KegiatanInput,
+  type StatusKegiatan,
+} from "../../data/kegiatan";
 
-/* ---------- Tipe & data contoh (ganti dengan data dari API) ---------- */
+/* ---------- Tipe & data contoh ---------- */
 
 interface StatCard {
   label: string;
@@ -26,53 +35,26 @@ interface StatCard {
   icon: LucideIcon;
 }
 
-type Category = "Semua" | "Kajian" | "Sosial & Seni";
-type AgendaCategory = Exclude<Category, "Semua">;
+/** Filter jadwal terdekat: hanya kegiatan yang belum selesai */
+type FilterAgenda = "Semua" | "Akan Datang" | "Berlangsung";
+const FILTERS: FilterAgenda[] = ["Semua", "Akan Datang", "Berlangsung"];
 
-interface Agenda {
-  title: string;
-  iso: string; // yyyy-mm-dd, dipakai untuk mengurutkan
-  date: string; // tampilan, mis. "7 Nov"
-  time: string;
-  place: string;
-  category: AgendaCategory;
-}
+/** Data yang dikirim form "Tambah Kegiatan Baru" (sama dengan form di halaman Kegiatan) */
+export type NewActivity = KegiatanInput;
 
-/** Data yang dikirim form "Tambah Kegiatan Baru" */
-export interface NewActivity {
-  judul: string;
-  tanggal: string; // yyyy-mm-dd
-  waktu: string; // HH:mm
-  tempat: string;
-  kategori: AgendaCategory;
-}
-
-/** Data yang dikirim form "Catat Kas Masuk" */
+/** Data yang dikirim form "Catat Kas Masuk" / "Catat Kas Keluar" */
 export interface NewCash {
+  jenis: Jenis;
   keterangan: string;
+  kategori: string;
   jumlah: number;
   tanggal: string; // yyyy-mm-dd
 }
-
-const AGENDA: Agenda[] = [
-  { title: "Kajian Rutin Malam Sabtu", iso: "2026-11-07", date: "7 Nov", time: "19.30 WIB", place: "Aula Masjid", category: "Kajian" },
-  { title: "Latihan Hadroh Remaja", iso: "2026-11-09", date: "9 Nov", time: "16.00 WIB", place: "Teras Masjid", category: "Sosial & Seni" },
-  { title: "Bakti Sosial Warga", iso: "2026-11-14", date: "14 Nov", time: "08.00 WIB", place: "Balai RW", category: "Sosial & Seni" },
-  { title: "Tahsin Al-Qur'an", iso: "2026-11-16", date: "16 Nov", time: "18.45 WIB", place: "Ruang Utama", category: "Kajian" },
-];
 
 const ANNOUNCEMENTS = [
   { title: "Rapat Persiapan Maulid", body: "Seluruh pengurus diharapkan hadir Ahad ini ba'da Ashar." },
   { title: "Pengumpulan Infaq Pembangunan", body: "Kas khusus dibuka sampai akhir bulan." },
 ];
-
-const FILTERS: Category[] = ["Semua", "Kajian", "Sosial & Seni"];
-const CATEGORIES: AgendaCategory[] = ["Kajian", "Sosial & Seni"];
-
-// Nilai awal contoh (ganti dengan data dari API)
-const SALDO_AWAL = 14_250_000;
-const PEMASUKAN_AWAL = 3_200_000;
-const KEGIATAN_SELESAI = 2;
 
 /* ---------- Helper ---------- */
 
@@ -83,23 +65,19 @@ const todayISO = () => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-// "T00:00:00" supaya tanggal dibaca sebagai waktu lokal (bukan UTC)
-const toAgenda = (d: NewActivity): Agenda => {
-  const dt = new Date(`${d.tanggal}T00:00:00`);
-  return {
-    title: d.judul.trim(),
-    iso: d.tanggal,
-    date: `${dt.getDate()} ${dt.toLocaleDateString("id-ID", { month: "short" })}`,
-    time: `${d.waktu.replace(":", ".")} WIB`,
-    place: d.tempat.trim(),
-    category: d.kategori,
-  };
-};
-
 const formatKas = (n: number) => `Rp ${Math.round(n / 1000).toLocaleString("id-ID")}k`;
 
 const formatRupiah = (n: number) =>
   n.toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+
+// "T00:00:00" supaya tanggal dibaca sebagai waktu lokal (bukan UTC)
+const tileTanggal = (iso: string) => {
+  const dt = new Date(`${iso}T00:00:00`);
+  return {
+    hari: String(dt.getDate()),
+    bulan: dt.toLocaleDateString("id-ID", { month: "short" }),
+  };
+};
 
 /* ---------- Token warna sesuai tema ---------- */
 
@@ -169,6 +147,9 @@ const inputCls = (c: Tokens, hasError: boolean) =>
   `h-11 w-full min-w-0 rounded-xl border px-4 text-sm outline-none transition focus:ring-2 ${c.input} ${
     hasError ? c.inputError : ""
   }`;
+
+const textareaCls = (c: Tokens) =>
+  `w-full min-w-0 rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2 ${c.input}`;
 
 /* ---------- Komponen modal & field ---------- */
 
@@ -271,7 +252,11 @@ function FormActions({ c, submitLabel, onCancel }: { c: Tokens; submitLabel: str
   );
 }
 
-/* ---------- Form Tambah Kegiatan ---------- */
+/* ---------- Form Tambah Kegiatan (field sama dengan halaman Kegiatan) ---------- */
+
+type ActivityErrors = Partial<
+  Record<"nama" | "tanggal" | "waktu" | "lokasi" | "penanggungJawab", string>
+>;
 
 function ActivityForm({
   c,
@@ -282,36 +267,47 @@ function ActivityForm({
   onSubmit: (data: NewActivity) => void;
   onCancel: () => void;
 }) {
-  const [judul, setJudul] = useState("");
+  const [nama, setNama] = useState("");
   const [tanggal, setTanggal] = useState(todayISO());
-  const [waktu, setWaktu] = useState("19:30");
-  const [tempat, setTempat] = useState("");
-  const [kategori, setKategori] = useState<AgendaCategory>("Kajian");
-  const [errors, setErrors] = useState<Partial<Record<"judul" | "tanggal" | "waktu" | "tempat", string>>>({});
+  const [waktu, setWaktu] = useState("08:00");
+  const [lokasi, setLokasi] = useState("");
+  const [penanggungJawab, setPenanggungJawab] = useState("");
+  const [status, setStatus] = useState<StatusKegiatan>("Akan Datang");
+  const [deskripsi, setDeskripsi] = useState("");
+  const [errors, setErrors] = useState<ActivityErrors>({});
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const next: typeof errors = {};
-    if (!judul.trim()) next.judul = "Nama kegiatan wajib diisi.";
+    const next: ActivityErrors = {};
+    if (!nama.trim()) next.nama = "Nama kegiatan wajib diisi.";
     if (!tanggal) next.tanggal = "Tanggal wajib diisi.";
     if (!waktu) next.waktu = "Waktu wajib diisi.";
-    if (!tempat.trim()) next.tempat = "Tempat wajib diisi.";
+    if (!lokasi.trim()) next.lokasi = "Lokasi wajib diisi.";
+    if (!penanggungJawab.trim()) next.penanggungJawab = "Penanggung jawab wajib diisi.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    onSubmit({ judul, tanggal, waktu, tempat, kategori });
+    onSubmit({
+      nama: nama.trim(),
+      tanggal,
+      waktu,
+      lokasi: lokasi.trim(),
+      penanggungJawab: penanggungJawab.trim(),
+      deskripsi: deskripsi.trim(),
+      status,
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      <Field label="Nama kegiatan" htmlFor="act-judul" error={errors.judul} c={c}>
+      <Field label="Nama kegiatan" htmlFor="act-nama" error={errors.nama} c={c}>
         <input
-          id="act-judul"
+          id="act-nama"
           type="text"
           autoFocus
-          placeholder="Mis. Kajian Rutin Malam Sabtu"
-          value={judul}
-          onChange={(e) => setJudul(e.target.value)}
-          className={inputCls(c, Boolean(errors.judul))}
+          placeholder="Masukkan nama kegiatan"
+          value={nama}
+          onChange={(e) => setNama(e.target.value)}
+          className={inputCls(c, Boolean(errors.nama))}
         />
       </Field>
 
@@ -336,30 +332,53 @@ function ActivityForm({
         </Field>
       </div>
 
-      <Field label="Tempat" htmlFor="act-tempat" error={errors.tempat} c={c}>
-        <input
-          id="act-tempat"
-          type="text"
-          placeholder="Mis. Aula Masjid"
-          value={tempat}
-          onChange={(e) => setTempat(e.target.value)}
-          className={inputCls(c, Boolean(errors.tempat))}
-        />
-      </Field>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Lokasi" htmlFor="act-lokasi" error={errors.lokasi} c={c}>
+          <input
+            id="act-lokasi"
+            type="text"
+            placeholder="Tempat kegiatan"
+            value={lokasi}
+            onChange={(e) => setLokasi(e.target.value)}
+            className={inputCls(c, Boolean(errors.lokasi))}
+          />
+        </Field>
+        <Field label="Penanggung jawab" htmlFor="act-pj" error={errors.penanggungJawab} c={c}>
+          <input
+            id="act-pj"
+            type="text"
+            placeholder="Nama PJ"
+            value={penanggungJawab}
+            onChange={(e) => setPenanggungJawab(e.target.value)}
+            className={inputCls(c, Boolean(errors.penanggungJawab))}
+          />
+        </Field>
+      </div>
 
-      <Field label="Kategori" htmlFor="act-kategori" c={c}>
+      <Field label="Status" htmlFor="act-status" c={c}>
         <select
-          id="act-kategori"
-          value={kategori}
-          onChange={(e) => setKategori(e.target.value as AgendaCategory)}
+          id="act-status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as StatusKegiatan)}
           className={inputCls(c, false)}
         >
-          {CATEGORIES.map((k) => (
-            <option key={k} value={k}>
-              {k}
+          {DAFTAR_STATUS.map((s) => (
+            <option key={s} value={s}>
+              {s}
             </option>
           ))}
         </select>
+      </Field>
+
+      <Field label="Deskripsi" htmlFor="act-deskripsi" c={c}>
+        <textarea
+          id="act-deskripsi"
+          rows={3}
+          placeholder="Deskripsi singkat kegiatan"
+          value={deskripsi}
+          onChange={(e) => setDeskripsi(e.target.value)}
+          className={textareaCls(c)}
+        />
       </Field>
 
       <FormActions c={c} submitLabel="Simpan Kegiatan" onCancel={onCancel} />
@@ -367,18 +386,22 @@ function ActivityForm({
   );
 }
 
-/* ---------- Form Catat Kas Masuk ---------- */
+/* ---------- Form Catat Kas Masuk / Keluar ---------- */
 
 function CashForm({
   c,
+  jenis,
   onSubmit,
   onCancel,
 }: {
   c: Tokens;
+  jenis: Jenis;
   onSubmit: (data: NewCash) => void;
   onCancel: () => void;
 }) {
+  const isMasuk = jenis === "Pemasukan";
   const [keterangan, setKeterangan] = useState("");
+  const [kategori, setKategori] = useState(KATEGORI[jenis][0]);
   const [jumlah, setJumlah] = useState("");
   const [tanggal, setTanggal] = useState(todayISO());
   const [errors, setErrors] = useState<Partial<Record<"keterangan" | "jumlah" | "tanggal", string>>>({});
@@ -392,7 +415,7 @@ function CashForm({
     if (!tanggal) next.tanggal = "Tanggal wajib diisi.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    onSubmit({ keterangan: keterangan.trim(), jumlah: nominal, tanggal });
+    onSubmit({ jenis, keterangan: keterangan.trim(), kategori, jumlah: nominal, tanggal });
   };
 
   return (
@@ -402,11 +425,26 @@ function CashForm({
           id="cash-ket"
           type="text"
           autoFocus
-          placeholder="Mis. Infaq Jumat, iuran anggota"
+          placeholder={isMasuk ? "Mis. Infaq Jumat, iuran anggota" : "Mis. Konsumsi rapat, cetak banner"}
           value={keterangan}
           onChange={(e) => setKeterangan(e.target.value)}
           className={inputCls(c, Boolean(errors.keterangan))}
         />
+      </Field>
+
+      <Field label="Kategori" htmlFor="cash-kategori" c={c}>
+        <select
+          id="cash-kategori"
+          value={kategori}
+          onChange={(e) => setKategori(e.target.value)}
+          className={inputCls(c, false)}
+        >
+          {KATEGORI[jenis].map((k) => (
+            <option key={k} value={k}>
+              {k}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -433,27 +471,40 @@ function CashForm({
         </Field>
       </div>
 
-      <FormActions c={c} submitLabel="Simpan Kas" onCancel={onCancel} />
+      <FormActions c={c} submitLabel={isMasuk ? "Simpan Kas Masuk" : "Simpan Kas Keluar"} onCancel={onCancel} />
     </form>
   );
 }
 
 /* ---------- Dashboard ---------- */
 
-interface AdminDashboardProps {
+interface DashboardAdminProps {
   /** Dipanggil setelah kegiatan baru disimpan (mis. untuk kirim ke API) */
   onActivityAdded?: (data: NewActivity) => void;
-  /** Dipanggil setelah kas masuk disimpan (mis. untuk kirim ke API) */
+  /** Dipanggil setelah kas masuk/keluar disimpan (mis. untuk kirim ke API) */
   onCashAdded?: (data: NewCash) => void;
 }
 
-export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDashboardProps) {
-  const [filter, setFilter] = useState<Category>("Semua");
-  const [agenda, setAgenda] = useState<Agenda[]>(AGENDA);
-  const [saldo, setSaldo] = useState(SALDO_AWAL);
-  const [pemasukan, setPemasukan] = useState(PEMASUKAN_AWAL);
-  const [modal, setModal] = useState<"kegiatan" | "kas" | null>(null);
+export default function DashboardAdmin({ onActivityAdded, onCashAdded }: DashboardAdminProps) {
+  const [filter, setFilter] = useState<FilterAgenda>("Semua");
+  const [modal, setModal] = useState<"kegiatan" | "kas" | "kasKeluar" | null>(null);
   const [notice, setNotice] = useState("");
+
+  // Data keuangan diambil dari keuangan.ts (sama persis dengan halaman Keuangan)
+  const transaksi = useTransaksi();
+  const bulanIni = todayISO().slice(0, 7);
+  const { saldo } = ringkasan(transaksi);
+  const { totalMasuk: pemasukan, totalKeluar: pengeluaran } = ringkasan(transaksi, bulanIni);
+
+  // Data kegiatan diambil dari kegiatan.ts (sama persis dengan halaman Kegiatan)
+  const semuaKegiatan = useKegiatan();
+  const belumSelesai = (s: StatusKegiatan) => s === "Akan Datang" || s === "Berlangsung";
+  const agendaTerdekat = semuaKegiatan
+    .filter((k) => belumSelesai(k.status))
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.waktu.localeCompare(b.waktu));
+  const kegiatanBulanIni = semuaKegiatan.filter((k) => k.tanggal.startsWith(bulanIni));
+  const mendatangBulanIni = kegiatanBulanIni.filter((k) => belumSelesai(k.status)).length;
+  const selesaiBulanIni = kegiatanBulanIni.filter((k) => k.status === "Selesai").length;
 
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -469,19 +520,26 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
   const closeModal = () => setModal(null);
 
   const handleAddActivity = (data: NewActivity) => {
-    // TODO: kirim ke API di sini
-    setAgenda((prev) => [...prev, toAgenda(data)].sort((a, b) => a.iso.localeCompare(b.iso)));
+    // Disimpan ke kegiatan.ts, langsung muncul di halaman Kegiatan
+    kegiatan.add(data);
     setModal(null);
     setNotice("Kegiatan baru berhasil ditambahkan.");
     onActivityAdded?.(data);
   };
 
   const handleAddCash = (data: NewCash) => {
-    // TODO: kirim ke API di sini
-    setSaldo((v) => v + data.jumlah);
-    setPemasukan((v) => v + data.jumlah);
+    // Disimpan sebagai transaksi (Pemasukan / Pengeluaran), langsung muncul di halaman Keuangan
+    keuangan.add({
+      tanggal: data.tanggal,
+      keterangan: data.keterangan,
+      kategori: data.kategori,
+      jenis: data.jenis,
+      jumlah: data.jumlah,
+    });
     setModal(null);
-    setNotice(`Kas masuk ${formatRupiah(data.jumlah)} berhasil dicatat.`);
+    setNotice(
+      `${data.jenis === "Pemasukan" ? "Kas masuk" : "Kas keluar"} ${formatRupiah(data.jumlah)} berhasil dicatat.`,
+    );
     onCashAdded?.(data);
   };
 
@@ -496,15 +554,15 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
     {
       label: "Saldo Kas IRMA",
       value: formatKas(saldo),
-      sub: `Pemasukan bln ini: ${formatRupiah(pemasukan)}`,
-      badge: "Segar & Aman",
+      sub: `Masuk bln ini: ${formatRupiah(pemasukan)} · Keluar: ${formatRupiah(pengeluaran)}`,
+      badge: saldo >= 0 ? "Surplus" : "Defisit",
       icon: Wallet,
     },
     {
       label: "Kegiatan Bulan Ini",
-      value: `${agenda.length + KEGIATAN_SELESAI} Program`,
-      sub: `${agenda.length} Agenda mendatang`,
-      badge: `${KEGIATAN_SELESAI} Selesai`,
+      value: `${kegiatanBulanIni.length} Program`,
+      sub: `${mendatangBulanIni} Agenda mendatang`,
+      badge: `${selesaiBulanIni} Selesai`,
       icon: CalendarDays,
     },
     {
@@ -516,7 +574,7 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
     },
   ];
 
-  const filtered = agenda.filter((a) => filter === "Semua" || a.category === filter);
+  const filtered = agendaTerdekat.filter((k) => filter === "Semua" || k.status === filter);
 
   const card = `rounded-3xl border p-6 ${c.card}`;
 
@@ -557,6 +615,14 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
           >
             <Plus className="h-4 w-4" />
             Catat Kas Masuk
+          </button>
+          <button
+            type="button"
+            onClick={() => setModal("kasKeluar")}
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-red-300/40 hover:text-red-300"
+          >
+            <Plus className="h-4 w-4" />
+            Catat Kas Keluar
           </button>
         </div>
       </section>
@@ -601,7 +667,7 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
                 Jadwal Kegiatan Terdekat
               </h3>
               <p className={`mt-0.5 text-sm ${c.muted}`}>
-                Agenda dakwah & sosial IRMA Baitussalam
+                Kegiatan yang akan datang dan sedang berlangsung
               </p>
             </div>
             <div className={`flex rounded-full border p-1 ${c.segment}`}>
@@ -621,38 +687,40 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
           </div>
 
           <ul className={`mt-5 divide-y ${c.divider}`}>
-            {filtered.map((a) => (
-              <li key={`${a.iso}-${a.title}`} className="flex items-center gap-4 py-4">
-                <div
-                  className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${c.dateTile}`}
-                >
-                  <span className="text-lg font-semibold leading-none">
-                    {a.date.split(" ")[0]}
-                  </span>
-                  <span className="mt-0.5 text-[11px]">
-                    {a.date.split(" ")[1]}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className={`truncate font-medium ${c.title}`}>{a.title}</p>
-                  <p
-                    className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ${c.muted}`}
+            {filtered.map((k) => {
+              const { hari, bulan } = tileTanggal(k.tanggal);
+              return (
+                <li key={k.id} className="flex items-center gap-4 py-4">
+                  <div
+                    className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${c.dateTile}`}
                   >
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" /> {a.time}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4" /> {a.place}
-                    </span>
-                  </p>
-                </div>
-                <span
-                  className={`hidden shrink-0 rounded-full px-3 py-1 text-xs font-medium sm:inline-block ${c.tag}`}
-                >
-                  {a.category}
-                </span>
-              </li>
-            ))}
+                    <span className="text-lg font-semibold leading-none">{hari}</span>
+                    <span className="mt-0.5 text-[11px]">{bulan}</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={`truncate font-medium ${c.title}`}>{k.nama}</p>
+                    <p
+                      className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm ${c.muted}`}
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" /> {k.waktu.replace(":", ".")} WIB
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4" /> {k.lokasi}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <UserRound className="h-4 w-4" /> {k.penanggungJawab}
+                      </span>
+                    </p>
+                  </div>
+                  <span
+                    className={`hidden shrink-0 rounded-full px-3 py-1 text-xs font-medium sm:inline-block ${c.tag}`}
+                  >
+                    {k.status}
+                  </span>
+                </li>
+              );
+            })}
             {filtered.length === 0 && (
               <li className={`py-8 text-center text-sm ${c.muted}`}>
                 Belum ada agenda di kategori ini.
@@ -694,7 +762,12 @@ export default function AdminDashboard({ onActivityAdded, onCashAdded }: AdminDa
 
       {/* Modal: Catat Kas Masuk */}
       <Modal open={modal === "kas"} title="Catat Kas Masuk" onClose={closeModal} c={c}>
-        <CashForm c={c} onSubmit={handleAddCash} onCancel={closeModal} />
+        <CashForm c={c} jenis="Pemasukan" onSubmit={handleAddCash} onCancel={closeModal} />
+      </Modal>
+
+      {/* Modal: Catat Kas Keluar */}
+      <Modal open={modal === "kasKeluar"} title="Catat Kas Keluar" onClose={closeModal} c={c}>
+        <CashForm c={c} jenis="Pengeluaran" onSubmit={handleAddCash} onCancel={closeModal} />
       </Modal>
 
       {/* Notifikasi berhasil */}

@@ -68,6 +68,17 @@ const DEFAULT_NOTIFICATIONS: AdminNotification[] = [
   },
 ];
 
+// Foto profil disimpan oleh halaman Profil di localStorage
+const PHOTO_KEY = "profile_photo";
+
+const readProfilePhoto = (): string => {
+  try {
+    return localStorage.getItem(PHOTO_KEY) ?? "";
+  } catch {
+    return "";
+  }
+};
+
 export default function Header({
   title = "Dashboard",
   subtitle,
@@ -87,6 +98,7 @@ export default function Header({
 }: HeaderProps) {
   const [openMenu, setOpenMenu] = useState<"profile" | "notif" | null>(null);
   const [notifications, setNotifications] = useState(notificationsProp);
+  const [profilePhoto, setProfilePhoto] = useState<string>(readProfilePhoto);
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -94,14 +106,27 @@ export default function Header({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Header dipakai semua role: nama & peran diambil dari sesi login
+  // Header dipakai semua role: nama & peran diambil dari sesi login,
+  // foto diambil dari foto profil yang disimpan di halaman Profil
   const roleText = session?.role
     ? session.role.charAt(0).toUpperCase() + session.role.slice(1)
     : "";
   const user = userProp ?? {
     name: session?.name ?? "Pengguna",
     role: roleText,
+    avatarUrl: profilePhoto || undefined,
   };
+
+  // Perbarui foto saat profil disimpan (tab ini) atau diubah dari tab lain
+  useEffect(() => {
+    const sync = () => setProfilePhoto(readProfilePhoto());
+    window.addEventListener("profile-updated", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("profile-updated", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   // Token warna sesuai tema
   const c = isDark
@@ -222,6 +247,7 @@ export default function Header({
 
   const initials = user.name
     .split(" ")
+    .filter(Boolean)
     .map((n) => n[0])
     .join("")
     .slice(0, 2)
@@ -454,11 +480,26 @@ export default function Header({
               role="menu"
               className={`absolute right-0 top-[calc(100%+10px)] z-50 w-60 rounded-2xl border p-1.5 ${c.panel}`}
             >
-              <div className={`border-b px-3 pb-2.5 pt-2 ${c.divider}`}>
-                <p className={`truncate text-sm font-semibold ${c.strong}`}>
-                  {user.name}
-                </p>
-                <p className={`truncate text-xs ${c.accent}`}>{user.role}</p>
+              <div
+                className={`flex items-center gap-3 border-b px-3 pb-2.5 pt-2 ${c.divider}`}
+              >
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt=""
+                    className="h-9 w-9 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lime-300 text-xs font-bold text-[#10150c]">
+                    {initials}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className={`truncate text-sm font-semibold ${c.strong}`}>
+                    {user.name}
+                  </p>
+                  <p className={`truncate text-xs ${c.accent}`}>{user.role}</p>
+                </div>
               </div>
 
               <div className="py-1.5">

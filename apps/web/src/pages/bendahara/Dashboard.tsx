@@ -10,40 +10,27 @@ import {
 } from "lucide-react";
 // NOTE: sesuaikan path import ini dengan lokasi file Anda
 import { useTheme } from "../../contexts/ThemeContext";
-
-interface Transaksi {
-  id: number;
-  tanggal: string; // ISO date
-  keterangan: string;
-  jenis: "Pemasukan" | "Pengeluaran";
-  jumlah: number;
-}
+import { useTransaksi } from "../../data/keuangan";
 
 // TODO: ganti dengan data dari API
-const transaksi: Transaksi[] = [
-  { id: 1, tanggal: "2026-11-05", keterangan: "Iuran anggota - November", jenis: "Pemasukan", jumlah: 1500000 },
-  { id: 2, tanggal: "2026-11-04", keterangan: "Konsumsi rapat", jenis: "Pengeluaran", jumlah: 350000 },
-  { id: 3, tanggal: "2026-11-02", keterangan: "Donasi sponsor", jenis: "Pemasukan", jumlah: 2000000 },
-  { id: 4, tanggal: "2026-10-28", keterangan: "Sewa aula", jenis: "Pengeluaran", jumlah: 800000 },
-  { id: 5, tanggal: "2026-10-15", keterangan: "Iuran anggota - Oktober", jenis: "Pemasukan", jumlah: 1800000 },
-  { id: 6, tanggal: "2026-09-20", keterangan: "Perlengkapan kegiatan", jenis: "Pengeluaran", jumlah: 600000 },
-  { id: 7, tanggal: "2026-09-10", keterangan: "Iuran anggota - September", jenis: "Pemasukan", jumlah: 1600000 },
-];
-
 const iuranBelumBayar = 7;
 
 const rupiah = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 
+// "T00:00:00" supaya tanggal dibaca sebagai waktu lokal (bukan UTC)
 const formatTanggal = (iso: string) =>
-  new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  new Date(`${iso}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 
 const namaBulan = (key: string) =>
-  new Date(`${key}-01`).toLocaleDateString("id-ID", { month: "short" });
+  new Date(`${key}-01T00:00:00`).toLocaleDateString("id-ID", { month: "short" });
 
-export default function Dashboard() {
+export default function DashboardBendahara() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  // Data keuangan diambil dari keuangan.ts (sama persis dengan halaman Keuangan)
+  const transaksi = useTransaksi();
 
   const { saldo, masukBulanIni, keluarBulanIni, grafik } = useMemo(() => {
     const now = new Date();
@@ -74,10 +61,13 @@ export default function Dashboard() {
       .map((k) => ({ bulan: namaBulan(k), ...perBulan[k] }));
 
     return { saldo, masukBulanIni, keluarBulanIni, grafik };
-  }, []);
+  }, [transaksi]);
 
   const maxGrafik = Math.max(...grafik.flatMap((g) => [g.masuk, g.keluar]), 1);
-  const terbaru = [...transaksi].sort((a, b) => b.tanggal.localeCompare(a.tanggal)).slice(0, 5);
+  const terbaru = useMemo(
+    () => [...transaksi].sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.id - a.id).slice(0, 5),
+    [transaksi]
+  );
 
   const stats: { label: string; value: string; icon: LucideIcon }[] = [
     { label: "Saldo Kas", value: rupiah(saldo), icon: Wallet },
